@@ -1,0 +1,62 @@
+services:
+  # PostgreSQL Database
+  - type: postgres
+    name: royal-crm-db
+    plan: free
+    databaseName: royal_crm
+    user: royal_crm_user
+    ipAllowList: []
+
+  # Backend API
+  - type: web
+    name: royal-crm-api
+    runtime: node
+    plan: free
+    buildCommand: cd apps/api && npm install && npm run build
+    startCommand: cd apps/api && node dist/main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: royal-crm-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: royal-crm-db
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: royal-crm-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: royal-crm-db
+          property: password
+      - key: DB_DATABASE
+        fromDatabase:
+          name: royal-crm-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://royal-crm-web.onrender.com
+      - key: PORT
+        value: 3001
+    healthCheckPath: /api/docs
+
+  # Frontend Web
+  - type: web
+    name: royal-crm-web
+    runtime: node
+    plan: free
+    buildCommand: cd apps/web && npm install && npm run build
+    startCommand: cd apps/web && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://royal-crm-api.onrender.com/api
+      - key: PORT
+        value: 3000
+    healthCheckPath: /

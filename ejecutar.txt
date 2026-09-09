@@ -1,0 +1,8 @@
+Para iniciar
+cd "C:\proyectos\CRM ROYAL 2026"
+npm install
+docker-compose up -d
+copy .env.example .env
+npm run db:seed
+npm run dev
+Credenciales: admin@royalcrm.com / admin123
