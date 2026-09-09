@@ -2,12 +2,10 @@ services:
   # Backend API
   - type: web
     name: royal-crm-api
-    runtime: image
+    runtime: node
     plan: free
-    image:
-      url: https://github.com/ingjcesarmojica/royal-2026.git
-      branch: master
-      dockerfilePath: Dockerfile.api
+    buildCommand: npm install && npm run build --workspace=apps/api
+    startCommand: node apps/api/dist/main
     envVars:
       - key: NODE_ENV
         value: production
@@ -32,12 +30,10 @@ services:
   # Frontend Web
   - type: web
     name: royal-crm-web
-    runtime: image
+    runtime: node
     plan: free
-    image:
-      url: https://github.com/ingjcesarmojica/royal-2026.git
-      branch: master
-      dockerfilePath: Dockerfile.web
+    buildCommand: npm install && npm run build --workspace=apps/web
+    startCommand: node apps/web/node_modules/.bin/next start apps/web
     envVars:
       - key: NODE_ENV
         value: production
