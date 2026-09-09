@@ -1,12 +1,4 @@
 services:
-  # PostgreSQL Database
-  - type: postgres
-    name: royal-crm-db
-    plan: free
-    databaseName: royal_crm
-    user: royal_crm_user
-    ipAllowList: []
-
   # Backend API
   - type: web
     name: royal-crm-api
@@ -18,25 +10,15 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_HOST
-        fromDatabase:
-          name: royal-crm-db
-          property: host
+        sync: false
       - key: DB_PORT
-        fromDatabase:
-          name: royal-crm-db
-          property: port
+        value: 5432
       - key: DB_USERNAME
-        fromDatabase:
-          name: royal-crm-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: royal-crm-db
-          property: password
+        sync: false
       - key: DB_DATABASE
-        fromDatabase:
-          name: royal-crm-db
-          property: database
+        value: royal_crm
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
