@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY apps/api/package*.json ./apps/api/
+COPY package*.json ./
+
+# Install dependencies
+RUN cd apps/api && npm install
+
+# Copy source
+COPY apps/api ./apps/api
+
+# Build
+RUN cd apps/api && npx nest build
+
+# Expose port
+EXPOSE 3001
+
+# Start
+CMD ["sh", "-c", "cd apps/api && node dist/main"]

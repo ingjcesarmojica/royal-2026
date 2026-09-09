@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY apps/web/package*.json ./apps/web/
+COPY package*.json ./
+
+# Install dependencies
+RUN cd apps/web && npm install
+
+# Copy source
+COPY apps/web ./apps/web
+
+# Build
+RUN cd apps/web && npx next build
+
+# Expose port
+EXPOSE 3000
+
+# Start
+CMD ["sh", "-c", "cd apps/web && npm start"]
