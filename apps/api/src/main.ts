@@ -69,6 +69,7 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3001',
       'https://royalgaming-crm-web.onrender.com',
+      'https://royal-2026-web.vercel.app',
       ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
     ],
     credentials: true,
