@@ -2,21 +2,20 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY apps/api/package*.json ./apps/api/
+# Copy all package files first for caching
 COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared/package*.json ./packages/shared/
 
-# Install dependencies
-RUN cd apps/api && npm install
+# Install all dependencies from root (workspaces)
+RUN npm install
 
-# Copy source
-COPY apps/api ./apps/api
+# Copy all source code
+COPY . .
 
-# Build
+# Build API
 RUN cd apps/api && npx nest build
 
-# Expose port
 EXPOSE 3001
 
-# Start
 CMD ["sh", "-c", "cd apps/api && node dist/main"]

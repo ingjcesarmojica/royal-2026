@@ -2,21 +2,20 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY apps/web/package*.json ./apps/web/
+# Copy all package files first for caching
 COPY package*.json ./
+COPY apps/web/package*.json ./apps/web/
+COPY packages/shared/package*.json ./packages/shared/
 
-# Install dependencies
-RUN cd apps/web && npm install
+# Install all dependencies from root (workspaces)
+RUN npm install
 
-# Copy source
-COPY apps/web ./apps/web
+# Copy all source code
+COPY . .
 
-# Build
+# Build Web
 RUN cd apps/web && npx next build
 
-# Expose port
 EXPOSE 3000
 
-# Start
 CMD ["sh", "-c", "cd apps/web && npm start"]
