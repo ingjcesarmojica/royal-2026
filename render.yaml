@@ -2,10 +2,12 @@ services:
   # Backend API
   - type: web
     name: royal-crm-api
-    runtime: node
+    runtime: image
     plan: free
-    buildCommand: npm install && npm run build --workspace=apps/api
-    startCommand: node apps/api/dist/main
+    image:
+      url: https://github.com/ingjcesarmojica/royal-2026.git
+      branch: master
+      dockerfilePath: Dockerfile.api
     envVars:
       - key: NODE_ENV
         value: production
@@ -25,15 +27,16 @@ services:
         value: https://royal-crm-web.onrender.com
       - key: PORT
         value: 3001
-    healthCheckPath: /api/docs
 
   # Frontend Web
   - type: web
     name: royal-crm-web
-    runtime: node
+    runtime: image
     plan: free
-    buildCommand: npm install && npm run build --workspace=apps/web
-    startCommand: node apps/web/node_modules/.bin/next start apps/web
+    image:
+      url: https://github.com/ingjcesarmojica/royal-2026.git
+      branch: master
+      dockerfilePath: Dockerfile.web
     envVars:
       - key: NODE_ENV
         value: production
@@ -41,4 +44,3 @@ services:
         value: https://royal-crm-api.onrender.com/api
       - key: PORT
         value: 3000
-    healthCheckPath: /

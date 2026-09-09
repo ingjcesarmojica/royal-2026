@@ -1,0 +1,13 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy everything
+COPY . .
+
+# Install dependencies and build API
+RUN cd apps/api && npm install && npx nest build
+
+EXPOSE 3001
+
+CMD ["sh", "-c", "cd apps/api && node dist/main"]
