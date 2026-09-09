@@ -10,13 +10,13 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_HOST
-        sync: false
+        value: ""
       - key: DB_PORT
-        value: 5432
+        value: "5432"
       - key: DB_USERNAME
-        sync: false
+        value: ""
       - key: DB_PASSWORD
-        sync: false
+        value: ""
       - key: DB_DATABASE
         value: royal_crm
       - key: JWT_SECRET
