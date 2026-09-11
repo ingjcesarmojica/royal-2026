@@ -98,3 +98,84 @@ export interface MessageTemplate {
   body: string;
   variables?: string[];
 }
+
+export enum ProductCategory {
+  RULETA = 'ruleta',
+  TERMINAL = 'terminal',
+  GABINETE = 'gabinete',
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  model: string;
+  description?: string;
+  category: ProductCategory;
+  positions?: number;
+  diameterCm?: number;
+  basePrice: number;
+  imageUrl?: string;
+  features?: Record<string, any>;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export enum QuoteStatus {
+  BORRADOR = 'borrador',
+  ENVIADA = 'enviada',
+  APROBADA = 'aprobada',
+  RECHAZADA = 'rechazada',
+  VENCIDA = 'vencida',
+}
+
+export interface QuoteItem {
+  id: string;
+  quoteId: string;
+  productId: string;
+  product?: Product;
+  quantity: number;
+  unitPrice: number;
+  discountPercent: number;
+  subtotal: number;
+}
+
+export interface Quote {
+  id: string;
+  customerId: string;
+  customer?: Customer;
+  userId: string;
+  user?: User;
+  title: string;
+  status: QuoteStatus;
+  validityDays: number;
+  deliveryTime?: string;
+  notes?: string;
+  discountPercent: number;
+  subtotal: number;
+  total: number;
+  headerConfig?: {
+    companyName?: string;
+    logoUrl?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    nit?: string;
+  };
+  bannerConfig?: {
+    enabled?: boolean;
+    imageUrl?: string;
+    text?: string;
+    backgroundColor?: string;
+  };
+  footerConfig?: {
+    logoUrl?: string;
+    text?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    website?: string;
+  };
+  items?: QuoteItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}

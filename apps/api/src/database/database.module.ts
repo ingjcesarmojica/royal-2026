@@ -9,6 +9,9 @@ import { MessageTemplate } from '../modules/messages/templates/entities/message-
 import { ImportJob } from '../modules/import/entities/import-job.entity';
 import { CompanySettings } from '../modules/config/entities/company-settings.entity';
 import { AuditLog } from '../modules/audit/entities/audit-log.entity';
+import { Product } from '../modules/products/entities/product.entity';
+import { Quote } from '../modules/quotes/entities/quote.entity';
+import { QuoteItem } from '../modules/quotes/entities/quote-item.entity';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { AuditLog } from '../modules/audit/entities/audit-log.entity';
       ImportJob,
       CompanySettings,
       AuditLog,
+      Product,
+      Quote,
+      QuoteItem,
     ]),
   ],
 })

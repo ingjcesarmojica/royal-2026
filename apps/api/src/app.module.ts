@@ -11,6 +11,8 @@ import { ImportModule } from './modules/import/import.module';
 import { ConfigModule as AppConfigModule } from './modules/config/config.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { ProductsModule } from './modules/products/products.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -42,6 +44,8 @@ import { DatabaseModule } from './database/database.module';
     AppConfigModule,
     DashboardModule,
     AuditModule,
+    ProductsModule,
+    QuotesModule,
   ],
 })
 export class AppModule {}
