@@ -29,6 +29,7 @@ interface Customer {
   company?: string;
   email?: string;
   phone?: string;
+  address?: string;
 }
 
 interface QuoteItem {
@@ -98,7 +99,7 @@ export default function QuotesPage() {
     validityDays: 30,
     headerConfig: {
       companyName: 'Royal Gaming',
-      logoUrl: '',
+      logoUrl: 'https://www.royalxr.com',
       address: '',
       phone: '',
       email: '',
@@ -111,7 +112,7 @@ export default function QuotesPage() {
       backgroundColor: '#7c3aed',
     },
     footerConfig: {
-      logoUrl: '',
+      logoUrl: 'https://www.royalxr.com',
       text: 'Gracias por su preferencia',
       contactEmail: '',
       contactPhone: '',
@@ -160,9 +161,9 @@ export default function QuotesPage() {
       notes: '',
       discountPercent: 0,
       validityDays: 30,
-      headerConfig: { companyName: 'Royal Gaming', logoUrl: '', address: '', phone: '', email: '', nit: '' },
+      headerConfig: { companyName: 'Royal Gaming', logoUrl: 'https://www.royalxr.com', address: '', phone: '', email: '', nit: '' },
       bannerConfig: { enabled: false, imageUrl: '', text: '¡Oferta Especial!', backgroundColor: '#7c3aed' },
-      footerConfig: { logoUrl: '', text: 'Gracias por su preferencia', contactEmail: '', contactPhone: '', website: 'royalxr.com' },
+      footerConfig: { logoUrl: 'https://www.royalxr.com', text: 'Gracias por su preferencia', contactEmail: '', contactPhone: '', website: 'royalxr.com' },
     });
     setQuoteItems([]);
     setShowEditor(true);
@@ -783,7 +784,15 @@ export default function QuotesPage() {
                     <label className="block text-sm font-medium text-foreground mb-1">Cliente *</label>
                     <select
                       value={formData.customerId}
-                      onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
+                      onChange={(e) => {
+                        const cid = e.target.value;
+                        const sel = customers.find((c) => c.id === cid);
+                        setFormData({
+                          ...formData,
+                          customerId: cid,
+                          title: sel ? `Propuesta para ${sel.company || sel.fullName}` : formData.title,
+                        });
+                      }}
                       className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="">Seleccionar cliente...</option>
@@ -791,6 +800,18 @@ export default function QuotesPage() {
                         <option key={c.id} value={c.id}>{c.fullName} {c.company ? `(${c.company})` : ''}</option>
                       ))}
                     </select>
+                    {formData.customerId && (() => {
+                      const sel = customers.find((c) => c.id === formData.customerId);
+                      if (!sel) return null;
+                      return (
+                        <div className="mt-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2 space-y-0.5">
+                          {sel.email && <p>Email: <strong>{sel.email}</strong></p>}
+                          {sel.phone && <p>Tel: <strong>{sel.phone}</strong></p>}
+                          {sel.company && <p>Empresa: <strong>{sel.company}</strong></p>}
+                          {sel.address && <p>Dir: <strong>{sel.address}</strong></p>}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Título *</label>
