@@ -289,38 +289,36 @@ export default function QuotesPage() {
     });
 
     const customerName = quote.customer?.fullName || '';
-    const customerLastName = customerName.split(' ').slice(-1)[0] || customerName;
     const firstName = customerName.split(' ')[0] || '';
 
-    const companyAddress = quote.headerConfig?.address || 'Cra. 70C 50-68 Bogotá D.C., Colombia';
+    const companyAddress = quote.headerConfig?.address || 'Cra. 70C 50-08 Bogotá D.C., Colombia';
     const companyPhone = quote.headerConfig?.phone || '+57 320 495 0576';
     const companyEmail = quote.headerConfig?.email || 'info@royalxr.com';
-    const companyNIT = quote.headerConfig?.nit || '';
     const companyName = quote.headerConfig?.companyName || 'Royal Gaming';
     const website = quote.footerConfig?.website || 'www.royalxr.com';
 
-    const logoUrl = quote.headerConfig?.logoUrl || '';
-    const logoHTML = logoUrl
-      ? `<img src="${logoUrl}" style="height: 80px;">`
-      : `<div style="text-align:center;">
-          <div style="font-size:40px;color:#d4a843;font-weight:bold;font-family:serif;">👑</div>
-          <div style="font-size:11px;color:#1a1a2e;font-weight:bold;letter-spacing:2px;">ROYAL</div>
-          <div style="font-size:8px;color:#666;letter-spacing:1px;">GAMING</div>
-          <div style="font-size:7px;color:#999;letter-spacing:1px;">ROULETTES</div>
-        </div>`;
+    const logoUrl = quote.headerConfig?.logoUrl || '/images/brand/logo-royal.png';
+
+    const headerHTML = (title: string) => `
+      <div class="header-bar">
+        <div class="header-title">${title}</div>
+        <div class="header-logo">
+          <img src="${logoUrl}" style="height:80px;" onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div class="header-gradient"></div>`;
 
     const footerHTML = `
-      <div class="footer">
-        <div style="display:flex;justify-content:center;align-items:center;gap:30px;font-size:9px;color:#555;">
+      <div class="footer-bar">
+        <div class="footer-gradient"></div>
+        <div class="footer-content">
           <span>${companyName} SAS</span>
-          <span>•</span>
-          <span>📍 ${companyAddress}</span>
-          <span>•</span>
-          <span>📞 ${companyPhone}</span>
-          <span>•</span>
-          <span>✉️ ${companyEmail}</span>
-          <span>•</span>
+          <span class="footer-sep">●</span>
           <span>🌐 ${website}</span>
+          <span class="footer-sep">●</span>
+          <span>${companyAddress}</span>
+          <span class="footer-sep">●</span>
+          <span>${companyEmail}</span>
         </div>
       </div>`;
 
@@ -333,40 +331,39 @@ export default function QuotesPage() {
           .map(([key, val]) => `<li>${val === true ? key : val}</li>`)
           .join('');
 
-        const specsHTML = `
-          <ul style="list-style:none;padding:0;margin:10px 0;">
-            ${item.product?.positions ? `<li>• ${item.product.positions} estaciones de Juego</li>` : ''}
-            ${item.product?.diameterCm ? `<li>• Superficie: ${item.product.diameterCm}mm</li>` : ''}
-            <li>• Software y Cilindros Europeos</li>
-            <li>• Monitores LCD de 24"</li>
-            <li>• Interfaz HD táctil</li>
-            <li>• Iluminación LED configurable</li>
-            <li>• Protocolo SAS de comunicaciones</li>
-            <li>• Jackpot de 4 niveles y multiplicadores de apuesta</li>
-            ${featureList}
-          </ul>`;
-
         return `
-          <div class="product-page">
-            <div class="product-header">
-              <h2 style="margin:0;color:#1a1a2e;font-size:20px;">ROYAL ${model}</h2>
-            </div>
-            <div class="product-content">
-              <div class="product-specs">
-                ${specsHTML}
+          <div class="page product-page">
+            ${headerHTML('PROPUESTA COMERCIAL')}
+            <div class="page-body">
+              <h2 class="product-title">ROYAL ${model}</h2>
+              <div class="product-content">
+                <div class="product-specs">
+                  <ul style="list-style:none;padding:0;margin:10px 0;">
+                    ${item.product?.diameterCm ? `<li>• Superficie: ${item.product.diameterCm}mm</li>` : ''}
+                    ${item.product?.positions ? `<li>• ${item.product.positions} estaciones de Juego</li>` : ''}
+                    <li>• 8 computadores independientes.</li>
+                    <li>• 8 Billeteros de última generación.</li>
+                    <li>• Monitores LCD de 24"</li>
+                    <li>• Interfaz HD táctil de respuesta inmediata.</li>
+                    <li>• 2 cargadores para colgar, para una mejor experiencia y estabilidad de los clientes.</li>
+                    <li>• Protocolo SAS de comunicaciones conforme a los nuevos requerimientos de Coljuegos.</li>
+                    <li>• JACKPOT DE 4 NIVELES y MULTIPLICADORES DE APUESTA</li>
+                    ${featureList}
+                  </ul>
+                </div>
+                <div class="product-image">
+                  ${imgSrc ? `<img src="${imgSrc}" style="max-width:100%;max-height:260px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">` : ''}
+                </div>
               </div>
-              <div class="product-image">
-                ${imgSrc ? `<img src="${imgSrc}" style="max-width:100%;max-height:280px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">` : '<div style="width:250px;height:200px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;">Sin imagen</div>'}
+              <div class="commercial-offer">
+                <h3>OFERTA COMERCIAL DE VENTA: ${model} – ${item.quantity} POSICIONES</h3>
+                <p><strong>Precio de Lista:</strong> ${formatCurrency(item.unitPrice)} por posición</p>
+                <p><strong>Cantidad:</strong> ${item.quantity} posiciones</p>
+                ${item.discountPercent > 0 ? `<p><strong>Descuento:</strong> ${item.discountPercent}%</p>` : ''}
+                <p><strong>Subtotal:</strong> ${formatCurrency(item.subtotal)}</p>
+                <p class="offer-note">Financiación en Pesos Colombianos - Precio fijo sin variación del dólar</p>
+                <p class="offer-note">Pago del 30% a la entrega, aproximadamente 60 días después de la orden de producción.</p>
               </div>
-            </div>
-            <div class="commercial-offer">
-              <h3 style="margin:0 0 10px 0;color:#1a1a2e;font-size:14px;">OFERTA COMERCIAL DE VENTA: ${model} – ${item.quantity} POSICIONES</h3>
-              <p style="margin:5px 0;font-size:12px;"><strong>Precio de Lista:</strong> ${formatCurrency(item.unitPrice)} por posición</p>
-              <p style="margin:5px 0;font-size:12px;"><strong>Cantidad:</strong> ${item.quantity} posiciones</p>
-              ${item.discountPercent > 0 ? `<p style="margin:5px 0;font-size:12px;"><strong>Descuento:</strong> ${item.discountPercent}%</p>` : ''}
-              <p style="margin:5px 0;font-size:12px;"><strong>Subtotal:</strong> ${formatCurrency(item.subtotal)}</p>
-              <p style="margin:10px 0 0 0;font-size:11px;color:#555;">Financiación en Pesos Colombianos - Precio fijo sin variación del dólar</p>
-              <p style="margin:5px 0;font-size:11px;color:#555;">Pago del 30% a la entrega, aproximadamente 60 días después de la orden de producción.</p>
             </div>
             ${footerHTML}
           </div>`;
@@ -380,73 +377,88 @@ export default function QuotesPage() {
         <meta charset="UTF-8">
         <title>Propuesta Comercial - ${quote.title || companyName}</title>
         <style>
-          @page { margin: 0; }
-          * { box-sizing: border-box; }
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; color: #1a1a2e; font-size: 12px; }
+          @page { margin: 0; size: A4; }
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.5; }
 
           .page {
-            width: 210mm; min-height: 297mm; padding: 25mm 20mm 30mm 20mm;
-            position: relative; page-break-after: always; background: white;
+            width: 210mm; min-height: 297mm; position: relative;
+            background: white; page-break-after: always; overflow: hidden;
           }
           .page:last-child { page-break-after: auto; }
 
+          .page-body { padding: 5mm 20mm 35mm 20mm; }
+
+          /* HEADER */
           .header-bar {
             display: flex; justify-content: space-between; align-items: center;
-            padding-bottom: 12px; border-bottom: 3px solid #d4a843; margin-bottom: 20px;
+            padding: 8mm 20mm 4mm 20mm;
           }
-          .header-title { font-size: 24px; font-weight: bold; color: #1a1a2e; letter-spacing: 1px; }
+          .header-title { font-size: 22px; font-weight: bold; color: #1565c0; letter-spacing: 1px; }
+          .header-logo { text-align: right; }
+          .header-gradient {
+            height: 6px; margin: 0 20mm;
+            background: linear-gradient(90deg, #1a1a2e 0%, #d4a843 30%, #f5c842 50%, #d4a843 70%, #1a1a2e 100%);
+            border-radius: 3px;
+          }
 
-          .date-line { font-size: 12px; color: #555; margin-bottom: 20px; }
+          /* FOOTER */
+          .footer-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+          }
+          .footer-gradient {
+            height: 4px;
+            background: linear-gradient(90deg, #1a1a2e 0%, #d4a843 30%, #f5c842 50%, #d4a843 70%, #1a1a2e 100%);
+          }
+          .footer-content {
+            background: #1a1a2e; color: #ccc; padding: 6px 20mm;
+            display: flex; justify-content: center; align-items: center;
+            gap: 12px; font-size: 9px; flex-wrap: wrap;
+          }
+          .footer-sep { color: #d4a843; font-size: 6px; }
 
-          .customer-block { margin-bottom: 15px; line-height: 1.8; }
+          /* PAGE 1 SPECIFIC */
+          .date-line { padding: 5mm 20mm 0 20mm; font-size: 12px; color: #555; }
+          .customer-block { padding: 5mm 20mm 0 20mm; line-height: 1.8; }
           .customer-block p { margin: 2px 0; }
-
-          .ref-line { font-size: 11px; color: #555; margin-bottom: 20px; font-weight: bold; }
-
-          .greeting { font-size: 12px; margin-bottom: 15px; }
-
-          .intro-text { font-size: 12px; line-height: 1.7; margin-bottom: 25px; color: #333; }
-
-          .features-section { margin-bottom: 25px; }
+          .ref-line { padding: 4mm 20mm 0 20mm; font-size: 11px; color: #555; font-weight: bold; }
+          .greeting { padding: 5mm 20mm 0 20mm; font-size: 12px; }
+          .intro-text { padding: 4mm 20mm 0 20mm; font-size: 12px; line-height: 1.7; color: #333; }
+          .features-section { padding: 5mm 20mm 0 20mm; }
           .features-section h3 { color: #1a1a2e; font-size: 14px; margin-bottom: 8px; }
+          .features-section h4 { color: #555; font-size: 12px; margin: 8px 0 5px 0; }
           .features-section ul { padding-left: 20px; margin: 5px 0; }
           .features-section li { margin: 4px 0; line-height: 1.5; }
+          .featured-product { padding: 5mm 20mm 0 20mm; }
 
-          .product-page {
-            width: 210mm; min-height: 297mm; padding: 25mm 20mm 30mm 20mm;
-            position: relative; page-break-after: always; background: white;
-          }
-          .product-page:last-child { page-break-after: auto; }
-
-          .product-header { border-bottom: 2px solid #d4a843; padding-bottom: 10px; margin-bottom: 15px; }
-
-          .product-content { display: flex; gap: 20px; margin-bottom: 20px; }
+          /* PRODUCT PAGES */
+          .product-page .page-body { padding-top: 5mm; }
+          .product-title { font-size: 20px; color: #1a1a2e; border-bottom: 2px solid #d4a843; padding-bottom: 8px; margin-bottom: 12px; }
+          .product-content { display: flex; gap: 20px; margin-bottom: 15px; }
           .product-specs { flex: 1; }
-          .product-specs ul { list-style: none; padding: 0; margin: 0; }
-          .product-specs li { margin: 6px 0; font-size: 12px; line-height: 1.5; }
-          .product-image { flex: 0 0 280px; display: flex; align-items: flex-start; justify-content: center; }
-
+          .product-specs li { margin: 5px 0; font-size: 12px; line-height: 1.5; }
+          .product-image { flex: 0 0 260px; display: flex; align-items: flex-start; justify-content: center; padding-top: 10px; }
           .commercial-offer {
             background: #f8f9fa; border-left: 4px solid #d4a843;
-            padding: 15px; margin-top: 15px; border-radius: 0 8px 8px 0;
+            padding: 12px 15px; border-radius: 0 8px 8px 0;
           }
+          .commercial-offer h3 { font-size: 13px; color: #1a1a2e; margin-bottom: 8px; }
+          .commercial-offer p { margin: 4px 0; font-size: 12px; }
+          .offer-note { font-size: 11px; color: #666; margin-top: 6px !important; }
 
-          .footer {
-            position: absolute; bottom: 15mm; left: 20mm; right: 20mm;
-            padding-top: 10px; border-top: 2px solid #d4a843; text-align: center;
-          }
-
-          .totals-page { padding: 40mm 20mm; }
-          .totals-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          .totals-table th { background: #1a1a2e; color: white; padding: 12px 15px; text-align: left; font-size: 12px; }
-          .totals-table td { padding: 10px 15px; border-bottom: 1px solid #e5e7eb; font-size: 12px; }
-          .totals-summary { max-width: 350px; margin-left: auto; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #d4a843; }
-          .totals-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
-          .totals-row.total { border-top: 2px solid #d4a843; font-weight: bold; font-size: 16px; color: #d4a843; padding-top: 10px; margin-top: 5px; }
+          /* TOTALS PAGE */
+          .totals-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+          .totals-table th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; font-size: 11px; }
+          .totals-table td { padding: 8px 12px; border-bottom: 1px solid #e5e7eb; font-size: 11px; }
+          .totals-summary { max-width: 350px; margin-left: auto; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #d4a843; }
+          .totals-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; }
+          .totals-row.total { border-top: 2px solid #d4a843; font-weight: bold; font-size: 15px; color: #d4a843; padding-top: 8px; margin-top: 4px; }
 
           @media print {
-            .page, .product-page { margin: 0; padding: 20mm 18mm 28mm 18mm; }
-            .footer { bottom: 12mm; }
+            .page { margin: 0; }
+            .page-body { padding: 3mm 18mm 32mm 18mm; }
+            .header-bar { padding: 6mm 18mm 3mm 18mm; }
+            .header-gradient { margin: 0 18mm; }
           }
         </style>
       </head>
@@ -454,10 +466,7 @@ export default function QuotesPage() {
 
         <!-- PAGINA 1: PROPUESTA COMERCIAL -->
         <div class="page">
-          <div class="header-bar">
-            <div class="header-title">PROPUESTA COMERCIAL</div>
-            <div>${logoHTML}</div>
-          </div>
+          ${headerHTML('PROPUESTA COMERCIAL')}
 
           <div class="date-line">Bogotá D.C., ${today}</div>
 
@@ -480,15 +489,15 @@ export default function QuotesPage() {
 
           <div class="features-section">
             <h3>Principales Características</h3>
-            <h4 style="color:#555;font-size:12px;margin-bottom:5px;">Tecnología</h4>
+            <h4>Tecnología</h4>
             <ul>
               <li>Jackpot Novedoso de 4 Niveles.</li>
               <li>Bono Replique: (Desarrollo ÚNICO y EXCLUSIVO/I+D).</li>
-              <li>Mecánica de Bonoscope: Ofrecer multiplesopciones de premio adicional a los jugadores que no han tenido una buena racha o cuyo saldo ha llegado a cero.</li>
+              <li>Mecánica de Bonoscope: Ofrecer múltiples opciones de premio adicional a los jugadores que no han tenido una buena racha o cuyo saldo ha llegado a cero.</li>
               <li>Múltiples de apuesta, PREMIUM hasta 30dpi.</li>
               <li>Máxima seguridad en juego, incluye Luces led de colores en todo el contorno para una experiencia visual moderna.</li>
             </ul>
-            <h4 style="color:#555;font-size:12px;margin:10px 0 5px 0;">Diseño de Vanguardia</h4>
+            <h4>Diseño de Vanguardia</h4>
             <ul>
               <li>Acabados de lujo, que combinan de gran manera la electrónica, video, metal y madera con el fin de crear una experiencia única.</li>
               <li>Imagen moderna, atractiva y amigable para los clientes.</li>
@@ -497,27 +506,28 @@ export default function QuotesPage() {
             </ul>
           </div>
 
-          <!-- Producto destacado (primer item) -->
           ${quote.items && quote.items.length > 0 ? `
-          <div style="display:flex;gap:20px;align-items:flex-start;background:#f8f9fa;padding:15px;border-radius:8px;border-left:4px solid #d4a843;">
-            <div style="flex:1;">
-              <h3 style="margin:0 0 8px 0;color:#1a1a2e;">ROYAL ${quote.items[0].product?.model || ''}</h3>
-              <p style="margin:3px 0;font-size:11px;">Superficie: ${quote.items[0].product?.diameterCm || '2150'}mm</p>
-              <p style="margin:3px 0;font-size:11px;">${quote.items[0].product?.positions || 6} estaciones de Juego</p>
-              <p style="margin:3px 0;font-size:11px;">8 computadores independientes.</p>
-              <p style="margin:3px 0;font-size:11px;">8 Billeteros de última generación.</p>
-              <p style="margin:3px 0;font-size:11px;">Monitores LCD de 24"</p>
-              <p style="margin:3px 0;font-size:11px;">Interfaz HD táctil de respuesta inmediata.</p>
-              <p style="margin:3px 0;font-size:11px;">2 cargadores para colgar, para una mejor experiencia y estabilidad de los clientes.</p>
-              <p style="margin:3px 0;font-size:11px;">Protocolo SAS de comunicaciones conforme a los nuevos requerimientos de Coljuegos.</p>
-              <p style="margin:3px 0;font-size:11px;">JACKPOT DE 4 NIVELES y MULTIPLICADORES DE APUESTA</p>
-            </div>
-            <div style="flex:0 0 220px;text-align:center;">
-              ${(() => {
-                const model = quote.items[0].product?.model || '';
-                const src = productImages[model] || quote.items[0].product?.imageUrl || '';
-                return src ? `<img src="${src}" style="max-width:100%;max-height:200px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">` : '';
-              })()}
+          <div class="featured-product">
+            <div style="display:flex;gap:20px;align-items:flex-start;background:#f8f9fa;padding:15px;border-radius:8px;border-left:4px solid #d4a843;">
+              <div style="flex:1;">
+                <h3 style="margin:0 0 8px 0;color:#1a1a2e;">ROYAL ${quote.items[0].product?.model || ''}</h3>
+                <p style="margin:3px 0;font-size:11px;">Superficie: ${quote.items[0].product?.diameterCm || '2150'}mm</p>
+                <p style="margin:3px 0;font-size:11px;">${quote.items[0].product?.positions || 6} estaciones de Juego</p>
+                <p style="margin:3px 0;font-size:11px;">8 computadores independientes.</p>
+                <p style="margin:3px 0;font-size:11px;">8 Billeteros de última generación.</p>
+                <p style="margin:3px 0;font-size:11px;">Monitores LCD de 24"</p>
+                <p style="margin:3px 0;font-size:11px;">Interfaz HD táctil de respuesta inmediata.</p>
+                <p style="margin:3px 0;font-size:11px;">2 cargadores para colgar, para una mejor experiencia y estabilidad de los clientes.</p>
+                <p style="margin:3px 0;font-size:11px;">Protocolo SAS de comunicaciones conforme a los nuevos requerimientos de Coljuegos.</p>
+                <p style="margin:3px 0;font-size:11px;">JACKPOT DE 4 NIVELES y MULTIPLICADORES DE APUESTA</p>
+              </div>
+              <div style="flex:0 0 220px;text-align:center;">
+                ${(() => {
+                  const model = quote.items[0].product?.model || '';
+                  const src = productImages[model] || quote.items[0].product?.imageUrl || '';
+                  return src ? `<img src="${src}" style="max-width:100%;max-height:200px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">` : '';
+                })()}
+              </div>
             </div>
           </div>
           ` : ''}
@@ -529,74 +539,71 @@ export default function QuotesPage() {
         ${productCardsHTML}
 
         <!-- PAGINA FINAL: RESUMEN DE TOTALES -->
-        <div class="page totals-page">
-          <div class="header-bar">
-            <div class="header-title">RESUMEN DE LA PROPUESTA</div>
-            <div>${logoHTML}</div>
-          </div>
-
-          <div style="margin-bottom:20px;">
-            <p><strong>Cliente:</strong> ${quote.customer?.fullName || 'N/A'}</p>
-            ${quote.customer?.company ? `<p><strong>Empresa:</strong> ${quote.customer.company}</p>` : ''}
-            <p><strong>Fecha:</strong> ${today}</p>
-            <p><strong>Válida por:</strong> ${quote.validityDays || 30} días</p>
-            <p><strong>Entrega:</strong> ${quote.deliveryTime || '60 días'}</p>
-          </div>
-
-          <table class="totals-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th style="text-align:right;">Precio Unit.</th>
-                <th style="text-align:right;">Descuento</th>
-                <th style="text-align:right;">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${(quote.items || []).map((item: any, i: number) => `
-                <tr>
-                  <td>${i + 1}</td>
-                  <td>${item.product?.name || item.productId}</td>
-                  <td style="text-align:center;">${item.quantity}</td>
-                  <td style="text-align:right;">${formatCurrency(item.unitPrice)}</td>
-                  <td style="text-align:center;">${item.discountPercent > 0 ? item.discountPercent + '%' : '-'}</td>
-                  <td style="text-align:right;font-weight:bold;">${formatCurrency(item.subtotal)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-
-          <div class="totals-summary">
-            <div class="totals-row">
-              <span>Subtotal:</span>
-              <span>${formatCurrency(quote.subtotal || 0)}</span>
+        <div class="page">
+          ${headerHTML('RESUMEN DE LA PROPUESTA')}
+          <div class="page-body">
+            <div style="margin-bottom:15px;">
+              <p><strong>Cliente:</strong> ${quote.customer?.fullName || 'N/A'}</p>
+              ${quote.customer?.company ? `<p><strong>Empresa:</strong> ${quote.customer.company}</p>` : ''}
+              <p><strong>Fecha:</strong> ${today}</p>
+              <p><strong>Válida por:</strong> ${quote.validityDays || 30} días</p>
+              <p><strong>Entrega:</strong> ${quote.deliveryTime || '60 días'}</p>
             </div>
-            ${quote.discountPercent > 0 ? `
-            <div class="totals-row">
-              <span>Descuento (${quote.discountPercent}%):</span>
-              <span>-${formatCurrency((quote.subtotal || 0) * (quote.discountPercent / 100))}</span>
+
+            <table class="totals-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th style="text-align:right;">Precio Unit.</th>
+                  <th style="text-align:right;">Descuento</th>
+                  <th style="text-align:right;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(quote.items || []).map((item: any, i: number) => `
+                  <tr>
+                    <td>${i + 1}</td>
+                    <td>${item.product?.name || item.productId}</td>
+                    <td style="text-align:center;">${item.quantity}</td>
+                    <td style="text-align:right;">${formatCurrency(item.unitPrice)}</td>
+                    <td style="text-align:center;">${item.discountPercent > 0 ? item.discountPercent + '%' : '-'}</td>
+                    <td style="text-align:right;font-weight:bold;">${formatCurrency(item.subtotal)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="totals-summary">
+              <div class="totals-row">
+                <span>Subtotal:</span>
+                <span>${formatCurrency(quote.subtotal || 0)}</span>
+              </div>
+              ${quote.discountPercent > 0 ? `
+              <div class="totals-row">
+                <span>Descuento (${quote.discountPercent}%):</span>
+                <span>-${formatCurrency((quote.subtotal || 0) * (quote.discountPercent / 100))}</span>
+              </div>
+              ` : ''}
+              <div class="totals-row total">
+                <span>TOTAL:</span>
+                <span>${formatCurrency(quote.total || 0)}</span>
+              </div>
+            </div>
+
+            ${quote.notes ? `
+            <div style="margin-top:25px;background:#f8f9fa;padding:12px;border-radius:8px;border-left:4px solid #d4a843;">
+              <h4 style="margin:0 0 6px 0;color:#1a1a2e;">Notas</h4>
+              <p style="margin:0;font-size:12px;color:#555;">${quote.notes}</p>
             </div>
             ` : ''}
-            <div class="totals-row total">
-              <span>TOTAL:</span>
-              <span>${formatCurrency(quote.total || 0)}</span>
+
+            <div style="margin-top:30px;text-align:center;font-size:11px;color:#555;">
+              <p>Agradecemos su preferencia y quedamos atentos a sus comentarios.</p>
+              <p style="margin-top:15px;"><strong>${companyName} SAS</strong></p>
             </div>
           </div>
-
-          ${quote.notes ? `
-          <div style="margin-top:30px;background:#f8f9fa;padding:15px;border-radius:8px;border-left:4px solid #d4a843;">
-            <h4 style="margin:0 0 8px 0;color:#1a1a2e;">Notas</h4>
-            <p style="margin:0;font-size:12px;color:#555;">${quote.notes}</p>
-          </div>
-          ` : ''}
-
-          <div style="margin-top:40px;text-align:center;font-size:11px;color:#555;">
-            <p>Agradecemos su preferencia y quedamos atentos a sus comentarios.</p>
-            <p style="margin-top:20px;"><strong>${companyName} SAS</strong></p>
-          </div>
-
           ${footerHTML}
         </div>
 
