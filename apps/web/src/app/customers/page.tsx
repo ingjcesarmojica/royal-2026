@@ -64,12 +64,13 @@ export default function CustomersPage() {
     }
     const stored = localStorage.getItem('user');
     if (stored) {
-      setCurrentUser(JSON.parse(stored));
+      const user = JSON.parse(stored);
+      setCurrentUser(user);
+      if (user.role === 'admin') {
+        loadUsers();
+      }
     }
     loadCustomers();
-    if (isAdmin) {
-      loadUsers();
-    }
   }, []);
 
   const loadCustomers = async () => {
