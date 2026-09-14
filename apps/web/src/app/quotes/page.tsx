@@ -84,10 +84,8 @@ export default function QuotesPage() {
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [previewQuote, setPreviewQuote] = useState<Quote | null>(null);
   const [expandedSections, setExpandedSections] = useState({
-    header: true,
     banner: false,
     items: true,
-    footer: false,
   });
 
   const [formData, setFormData] = useState({
@@ -844,76 +842,6 @@ export default function QuotesPage() {
                   </div>
                 </div>
 
-                {/* Header Config */}
-                <div className="border border-border rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setExpandedSections({ ...expandedSections, header: !expandedSections.header })}
-                    className="w-full flex items-center justify-between p-3 bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <span className="font-medium text-foreground">Encabezado de la Cotización</span>
-                    {expandedSections.header ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                  </button>
-                  {expandedSections.header && (
-                    <div className="p-4 grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Nombre de la Empresa</label>
-                        <input
-                          type="text"
-                          value={formData.headerConfig.companyName}
-                          onChange={(e) => setFormData({ ...formData, headerConfig: { ...formData.headerConfig, companyName: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Logo URL</label>
-                        <input
-                          type="text"
-                          value={formData.headerConfig.logoUrl}
-                          onChange={(e) => setFormData({ ...formData, headerConfig: { ...formData.headerConfig, logoUrl: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          placeholder="https://..."
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Dirección</label>
-                        <input
-                          type="text"
-                          value={formData.headerConfig.address}
-                          onChange={(e) => setFormData({ ...formData, headerConfig: { ...formData.headerConfig, address: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Teléfono</label>
-                        <input
-                          type="text"
-                          value={formData.headerConfig.phone}
-                          onChange={(e) => setFormData({ ...formData, headerConfig: { ...formData.headerConfig, phone: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Email</label>
-                        <input
-                          type="email"
-                          value={formData.headerConfig.email}
-                          onChange={(e) => setFormData({ ...formData, headerConfig: { ...formData.headerConfig, email: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">NIT</label>
-                        <input
-                          type="text"
-                          value={formData.headerConfig.nit}
-                          onChange={(e) => setFormData({ ...formData, headerConfig: { ...formData.headerConfig, nit: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {/* Banner Config */}
                 <div className="border border-border rounded-lg overflow-hidden">
                   <button
@@ -1082,68 +1010,6 @@ export default function QuotesPage() {
                             <span className="text-purple-600">{formatCurrency(total)}</span>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer Config */}
-                <div className="border border-border rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setExpandedSections({ ...expandedSections, footer: !expandedSections.footer })}
-                    className="w-full flex items-center justify-between p-3 bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <span className="font-medium text-foreground">Pie de Página</span>
-                    {expandedSections.footer ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                  </button>
-                  {expandedSections.footer && (
-                    <div className="p-4 grid grid-cols-2 gap-4">
-                      <div className="col-span-2">
-                        <label className="block text-sm font-medium text-foreground mb-1">Logo URL</label>
-                        <input
-                          type="text"
-                          value={formData.footerConfig.logoUrl}
-                          onChange={(e) => setFormData({ ...formData, footerConfig: { ...formData.footerConfig, logoUrl: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          placeholder="https://..."
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className="block text-sm font-medium text-foreground mb-1">Mensaje</label>
-                        <input
-                          type="text"
-                          value={formData.footerConfig.text}
-                          onChange={(e) => setFormData({ ...formData, footerConfig: { ...formData.footerConfig, text: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          placeholder="Gracias por su preferencia"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Email de Contacto</label>
-                        <input
-                          type="email"
-                          value={formData.footerConfig.contactEmail}
-                          onChange={(e) => setFormData({ ...formData, footerConfig: { ...formData.footerConfig, contactEmail: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Teléfono de Contacto</label>
-                        <input
-                          type="text"
-                          value={formData.footerConfig.contactPhone}
-                          onChange={(e) => setFormData({ ...formData, footerConfig: { ...formData.footerConfig, contactPhone: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Sitio Web</label>
-                        <input
-                          type="text"
-                          value={formData.footerConfig.website}
-                          onChange={(e) => setFormData({ ...formData, footerConfig: { ...formData.footerConfig, website: e.target.value } })}
-                          className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
                       </div>
                     </div>
                   )}
