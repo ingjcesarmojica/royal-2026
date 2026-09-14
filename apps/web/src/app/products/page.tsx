@@ -34,6 +34,16 @@ const categoryColors: Record<string, string> = {
   gabinete: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
 };
 
+const productImages: Record<string, string> = {
+  'XR-8': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-2.webp',
+  'XR-6': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-3.webp',
+  'XS-6': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-4.webp',
+  'XP-5': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-5.webp',
+  'XP-4': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-6.webp',
+  'XT': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-7.webp',
+  'XG': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-8.webp',
+};
+
 export default function ProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
@@ -223,8 +233,19 @@ export default function ProductsPage() {
                   key={product.id}
                   className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-shadow"
                 >
-                  <div className="h-48 bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
-                    <Package className="w-20 h-20 text-white/30" />
+                  <div className="h-48 bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center overflow-hidden">
+                    {(product.imageUrl || productImages[product.model]) ? (
+                      <img
+                        src={product.imageUrl || productImages[product.model]}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <Package className={`w-20 h-20 text-white/30 ${product.imageUrl || productImages[product.model] ? 'hidden' : ''}`} />
                   </div>
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
