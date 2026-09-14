@@ -14,6 +14,7 @@ import {
   X,
   Users,
   Filter,
+  UserCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -24,16 +25,27 @@ interface Customer {
   email: string;
   phone: string;
   status: { name: string; color: string };
-  owner: { fullName: string };
+  owner: { fullName: string; id: string };
+  ownerId: string;
   createdAt: string;
+}
+
+interface UserOption {
+  id: string;
+  fullName: string;
+  email: string;
 }
 
 export default function CustomersPage() {
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [users, setUsers] = useState<UserOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [assignModal, setAssignModal] = useState<{ customerId: string; currentOwner: string } | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     company: '',
@@ -42,13 +54,22 @@ export default function CustomersPage() {
     notes: '',
   });
 
+  const isAdmin = currentUser?.role === 'admin';
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
       return;
     }
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      setCurrentUser(JSON.parse(stored));
+    }
     loadCustomers();
+    if (isAdmin) {
+      loadUsers();
+    }
   }, []);
 
   const loadCustomers = async () => {
@@ -62,6 +83,15 @@ export default function CustomersPage() {
     }
   };
 
+  const loadUsers = async () => {
+    try {
+      const response = await api.get('/users/list');
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -72,6 +102,19 @@ export default function CustomersPage() {
       loadCustomers();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al crear cliente');
+    }
+  };
+
+  const handleAssign = async () => {
+    if (!assignModal || !selectedOwner) return;
+    try {
+      await api.put(`/customers/${assignModal.customerId}/assign`, { ownerId: selectedOwner });
+      toast.success('Cliente asignado exitosamente');
+      setAssignModal(null);
+      setSelectedOwner('');
+      loadCustomers();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error al asignar cliente');
     }
   };
 
@@ -100,7 +143,9 @@ export default function CustomersPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Clientes</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              {isAdmin ? 'Todos los Clientes' : 'Mis Clientes'}
+            </h1>
             <p className="text-muted-foreground mt-1">{customers.length} clientes registrados</p>
           </div>
           <button
@@ -151,6 +196,11 @@ export default function CustomersPage() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Vendedor
                   </th>
+                  {isAdmin && (
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -216,11 +266,25 @@ export default function CustomersPage() {
                         <span className="text-sm">{customer.owner?.fullName || 'Sin asignar'}</span>
                       </div>
                     </td>
+                    {isAdmin && (
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => {
+                            setAssignModal({ customerId: customer.id, currentOwner: customer.ownerId || '' });
+                            setSelectedOwner(customer.ownerId || '');
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          Asignar
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
                 {filteredCustomers.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-16 text-center">
+                    <td colSpan={isAdmin ? 6 : 5} className="px-6 py-16 text-center">
                       <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
                       <p className="text-muted-foreground font-medium">No se encontraron clientes</p>
                       <p className="text-sm text-muted-foreground mt-1">
@@ -234,7 +298,7 @@ export default function CustomersPage() {
           </div>
         </div>
 
-        {/* Modal */}
+        {/* Create Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-2xl border border-border w-full max-w-md shadow-2xl">
@@ -327,6 +391,58 @@ export default function CustomersPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Assign Modal */}
+        {assignModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-card rounded-2xl border border-border w-full max-w-sm shadow-2xl">
+              <div className="flex items-center justify-between p-6 border-b border-border">
+                <h2 className="text-xl font-bold text-card-foreground">Asignar Cliente</h2>
+                <button
+                  onClick={() => setAssignModal(null)}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <X className="w-5 h-5 text-muted-foreground" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-1.5">
+                    Asignar a vendedor
+                  </label>
+                  <select
+                    value={selectedOwner}
+                    onChange={(e) => setSelectedOwner(e.target.value)}
+                    className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  >
+                    <option value="">Sin asignar</option>
+                    {users
+                      .filter((u) => u.id !== currentUser?.id)
+                      .map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.fullName}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    onClick={() => setAssignModal(null)}
+                    className="px-5 py-2.5 text-sm font-medium border border-border rounded-xl hover:bg-muted transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleAssign}
+                    className="px-5 py-2.5 text-sm font-medium gradient-primary text-white rounded-xl hover:shadow-royal transition-all duration-300"
+                  >
+                    Asignar
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -60,20 +60,40 @@ export class CustomersService {
     return this.customersRepository.save(customer);
   }
 
+  async assignOwner(id: string, ownerId: string): Promise<Customer> {
+    const customer = await this.findOne(id);
+    customer.ownerId = ownerId;
+    return this.customersRepository.save(customer);
+  }
+
   async remove(id: string): Promise<void> {
     const customer = await this.findOne(id);
     await this.customersRepository.remove(customer);
   }
 
-  async getStats(): Promise<any> {
-    const total = await this.customersRepository.count();
+  async getStats(ownerId?: string): Promise<any> {
+    const where = ownerId ? { ownerId } : {};
+    const total = await this.customersRepository.count({ where });
     const byStatus = await this.customersRepository
       .createQueryBuilder('customer')
       .select('customer.status_id', 'statusId')
       .addSelect('COUNT(*)', 'count')
+      .where(ownerId ? 'customer.owner_id = :ownerId' : '1=1', { ownerId })
       .groupBy('customer.status_id')
       .getRawMany();
 
     return { total, byStatus };
+  }
+
+  async getStatsByOwner(): Promise<any[]> {
+    return this.customersRepository
+      .createQueryBuilder('customer')
+      .leftJoin('customer.owner', 'owner')
+      .select('owner.id', 'ownerId')
+      .addSelect('owner.full_name', 'ownerName')
+      .addSelect('COUNT(customer.id)', 'count')
+      .groupBy('owner.id')
+      .addGroupBy('owner.full_name')
+      .getRawMany();
   }
 }

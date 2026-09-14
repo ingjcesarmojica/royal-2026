@@ -4,6 +4,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Roles } from '../../common/roles.decorator';
 
 @ApiTags('Products')
 @ApiBearerAuth()
@@ -13,7 +14,8 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new product' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a new product (admin only)' })
   async create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto);
   }
@@ -33,7 +35,8 @@ export class ProductsController {
   }
 
   @Get('stats')
-  @ApiOperation({ summary: 'Get product statistics' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Get product statistics (admin only)' })
   async getStats() {
     return this.productsService.getStats();
   }
@@ -45,13 +48,15 @@ export class ProductsController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update product' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Update product (admin only)' })
   async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productsService.update(id, dto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete product' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Delete product (admin only)' })
   async remove(@Param('id') id: string) {
     await this.productsService.remove(id);
     return { message: 'Product deleted' };

@@ -19,17 +19,19 @@ import {
   Crown,
   ChevronLeft,
   ChevronRight,
+  UserCog,
 } from 'lucide-react';
 
-const menuItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/customers', label: 'Clientes', icon: Users },
-  { href: '/pipeline', label: 'Pipeline', icon: Kanban },
-  { href: '/products', label: 'Productos', icon: Package },
-  { href: '/quotes', label: 'Cotizaciones', icon: FileText },
-  { href: '/messages', label: 'Mensajes', icon: MessageSquare },
-  { href: '/import', label: 'Importar CSV', icon: Upload },
-  { href: '/config', label: 'Configuración', icon: Settings },
+const allMenuItems = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'vendedor', 'manager', 'soporte', 'lectura'] },
+  { href: '/customers', label: 'Clientes', icon: Users, roles: ['admin', 'vendedor', 'manager'] },
+  { href: '/pipeline', label: 'Pipeline', icon: Kanban, roles: ['admin', 'vendedor', 'manager'] },
+  { href: '/products', label: 'Productos', icon: Package, roles: ['admin'] },
+  { href: '/quotes', label: 'Cotizaciones', icon: FileText, roles: ['admin', 'vendedor'] },
+  { href: '/messages', label: 'Mensajes', icon: MessageSquare, roles: ['admin', 'vendedor'] },
+  { href: '/users', label: 'Usuarios', icon: UserCog, roles: ['admin'] },
+  { href: '/import', label: 'Importar CSV', icon: Upload, roles: ['admin'] },
+  { href: '/config', label: 'Configuración', icon: Settings, roles: ['admin'] },
 ];
 
 export default function Sidebar() {
@@ -45,6 +47,10 @@ export default function Sidebar() {
       setUser(JSON.parse(stored));
     }
   }, []);
+
+  const menuItems = allMenuItems.filter(
+    (item) => user?.role && item.roles.includes(user.role),
+  );
 
   const handleLogout = () => {
     localStorage.removeItem('token');

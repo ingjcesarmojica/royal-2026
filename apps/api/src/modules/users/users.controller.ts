@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Roles } from '../../common/roles.decorator';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -13,31 +14,42 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new user' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a new user (admin only)' })
   async create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Get all users (admin only)' })
   async findAll() {
     return this.usersService.findAll();
   }
 
+  @Get('list')
+  @ApiOperation({ summary: 'Get users list (for assignation)' })
+  async getList() {
+    return this.usersService.findAll();
+  }
+
   @Get(':id')
-  @ApiOperation({ summary: 'Get user by ID' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Get user by ID (admin only)' })
   async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update user' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Update user (admin only)' })
   async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.usersService.update(id, dto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Deactivate user' })
+  @Roles('admin')
+  @ApiOperation({ summary: 'Deactivate user (admin only)' })
   async deactivate(@Param('id') id: string) {
     return this.usersService.deactivate(id);
   }
