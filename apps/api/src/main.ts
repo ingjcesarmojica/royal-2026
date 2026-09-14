@@ -1,10 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DataSource } from 'typeorm';
-import { RolesGuard } from './common/roles.guard';
 import * as bcrypt from 'bcryptjs';
 import { User, UserRole, AuthProvider } from './modules/users/entities/user.entity';
 import { CustomerStatus } from './modules/statuses/entities/customer-status.entity';
@@ -86,8 +84,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
-  app.useGlobalGuards(new RolesGuard(new Reflector()));
 
   const config = new DocumentBuilder()
     .setTitle('Royal CRM 2026')

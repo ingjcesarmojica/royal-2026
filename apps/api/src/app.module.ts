@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { CustomersModule } from './modules/customers/customers.module';
@@ -14,6 +15,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { ProductsModule } from './modules/products/products.module';
 import { QuotesModule } from './modules/quotes/quotes.module';
 import { DatabaseModule } from './database/database.module';
+import { RolesGuard } from './common/roles.guard';
 
 @Module({
   imports: [
@@ -46,6 +48,12 @@ import { DatabaseModule } from './database/database.module';
     AuditModule,
     ProductsModule,
     QuotesModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule {}
