@@ -362,40 +362,20 @@ export default function QuotesPage() {
           }
           .page:last-child { page-break-after: auto; }
 
-          /* HEADER FIXED - se repite en cada hoja */
+          /* HEADER FIXED - imagen fija en cada hoja */
           .header-fixed {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            background: white;
           }
-          .header-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8mm 20mm 4mm 20mm;
-          }
-          .header-title { font-size: 22px; font-weight: bold; color: #1565c0; letter-spacing: 1px; }
-          .header-logo { text-align: right; }
-          .header-gradient {
-            height: 6px; margin: 0 20mm;
-            background: linear-gradient(90deg, #1a1a2e 0%, #d4a843 30%, #f5c842 50%, #d4a843 70%, #1a1a2e 100%);
-            border-radius: 3px;
-          }
+          .header-fixed img { width: 100%; display: block; }
 
-          /* FOOTER FIXED - se repite en cada hoja */
+          /* FOOTER FIXED - imagen fija en cada hoja */
           .footer-fixed {
             position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
           }
-          .footer-gradient {
-            height: 4px;
-            background: linear-gradient(90deg, #1a1a2e 0%, #d4a843 30%, #f5c842 50%, #d4a843 70%, #1a1a2e 100%);
-          }
-          .footer-content {
-            background: #1a1a2e; color: #ccc; padding: 6px 20mm;
-            display: flex; justify-content: center; align-items: center;
-            gap: 12px; font-size: 9px; flex-wrap: wrap;
-          }
-          .footer-sep { color: #d4a843; font-size: 6px; }
+          .footer-fixed img { width: 100%; display: block; }
 
           /* CONTENIDO DE CADA PAGINA - respeta header/footer fijos */
-          .page-body { padding: 38mm 20mm 30mm 20mm; }
+          .page-body { padding: 35mm 20mm 28mm 20mm; }
 
           /* PAGE 1 */
           .date-line { font-size: 12px; color: #555; margin-bottom: 15px; }
@@ -442,27 +422,12 @@ export default function QuotesPage() {
 
         <!-- HEADER FIJO GLOBAL -->
         <div class="header-fixed">
-          <div class="header-bar">
-            <div class="header-title" id="headerTitle">PROPUESTA COMERCIAL</div>
-            <div class="header-logo">
-              <img src="${logoUrl}" style="height:80px;" onerror="this.style.display='none'">
-            </div>
-          </div>
-          <div class="header-gradient"></div>
+          <img src="/images/brand/header.jpg" onerror="this.parentElement.style.display='none'">
         </div>
 
         <!-- FOOTER FIJO GLOBAL -->
         <div class="footer-fixed">
-          <div class="footer-gradient"></div>
-          <div class="footer-content">
-            <span>${companyName} SAS</span>
-            <span class="footer-sep">●</span>
-            <span>🌐 ${website}</span>
-            <span class="footer-sep">●</span>
-            <span>${companyAddress}</span>
-            <span class="footer-sep">●</span>
-            <span>${companyEmail}</span>
-          </div>
+          <img src="/images/brand/footer.jpg" onerror="this.parentElement.style.display='none'">
         </div>
 
         <!-- PAGINA 1: PROPUESTA COMERCIAL -->
