@@ -299,29 +299,6 @@ export default function QuotesPage() {
 
     const logoUrl = quote.headerConfig?.logoUrl || '/images/brand/logo-royal.png';
 
-    const headerHTML = (title: string) => `
-      <div class="header-bar">
-        <div class="header-title">${title}</div>
-        <div class="header-logo">
-          <img src="${logoUrl}" style="height:80px;" onerror="this.style.display='none'">
-        </div>
-      </div>
-      <div class="header-gradient"></div>`;
-
-    const footerHTML = `
-      <div class="footer-bar">
-        <div class="footer-gradient"></div>
-        <div class="footer-content">
-          <span>${companyName} SAS</span>
-          <span class="footer-sep">●</span>
-          <span>🌐 ${website}</span>
-          <span class="footer-sep">●</span>
-          <span>${companyAddress}</span>
-          <span class="footer-sep">●</span>
-          <span>${companyEmail}</span>
-        </div>
-      </div>`;
-
     const productCardsHTML = (quote.items || [])
       .map((item: any) => {
         const model = item.product?.model || '';
@@ -332,8 +309,7 @@ export default function QuotesPage() {
           .join('');
 
         return `
-          <div class="page product-page">
-            ${headerHTML('PROPUESTA COMERCIAL')}
+          <div class="page">
             <div class="page-body">
               <h2 class="product-title">ROYAL ${model}</h2>
               <div class="product-content">
@@ -365,7 +341,6 @@ export default function QuotesPage() {
                 <p class="offer-note">Pago del 30% a la entrega, aproximadamente 60 días después de la orden de producción.</p>
               </div>
             </div>
-            ${footerHTML}
           </div>`;
       })
       .join('');
@@ -387,9 +362,11 @@ export default function QuotesPage() {
           }
           .page:last-child { page-break-after: auto; }
 
-          .page-body { padding: 5mm 20mm 35mm 20mm; }
-
-          /* HEADER */
+          /* HEADER FIXED - se repite en cada hoja */
+          .header-fixed {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: white;
+          }
           .header-bar {
             display: flex; justify-content: space-between; align-items: center;
             padding: 8mm 20mm 4mm 20mm;
@@ -402,9 +379,9 @@ export default function QuotesPage() {
             border-radius: 3px;
           }
 
-          /* FOOTER */
-          .footer-bar {
-            position: absolute; bottom: 0; left: 0; right: 0;
+          /* FOOTER FIXED - se repite en cada hoja */
+          .footer-fixed {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
           }
           .footer-gradient {
             height: 4px;
@@ -417,22 +394,24 @@ export default function QuotesPage() {
           }
           .footer-sep { color: #d4a843; font-size: 6px; }
 
-          /* PAGE 1 SPECIFIC */
-          .date-line { padding: 5mm 20mm 0 20mm; font-size: 12px; color: #555; }
-          .customer-block { padding: 5mm 20mm 0 20mm; line-height: 1.8; }
+          /* CONTENIDO DE CADA PAGINA - respeta header/footer fijos */
+          .page-body { padding: 38mm 20mm 30mm 20mm; }
+
+          /* PAGE 1 */
+          .date-line { font-size: 12px; color: #555; margin-bottom: 15px; }
+          .customer-block { line-height: 1.8; margin-bottom: 15px; }
           .customer-block p { margin: 2px 0; }
-          .ref-line { padding: 4mm 20mm 0 20mm; font-size: 11px; color: #555; font-weight: bold; }
-          .greeting { padding: 5mm 20mm 0 20mm; font-size: 12px; }
-          .intro-text { padding: 4mm 20mm 0 20mm; font-size: 12px; line-height: 1.7; color: #333; }
-          .features-section { padding: 5mm 20mm 0 20mm; }
+          .ref-line { font-size: 11px; color: #555; margin-bottom: 15px; font-weight: bold; }
+          .greeting { font-size: 12px; margin-bottom: 12px; }
+          .intro-text { font-size: 12px; line-height: 1.7; margin-bottom: 20px; color: #333; }
+          .features-section { margin-bottom: 20px; }
           .features-section h3 { color: #1a1a2e; font-size: 14px; margin-bottom: 8px; }
           .features-section h4 { color: #555; font-size: 12px; margin: 8px 0 5px 0; }
           .features-section ul { padding-left: 20px; margin: 5px 0; }
           .features-section li { margin: 4px 0; line-height: 1.5; }
-          .featured-product { padding: 5mm 20mm 0 20mm; }
+          .featured-product { margin-top: 15px; }
 
           /* PRODUCT PAGES */
-          .product-page .page-body { padding-top: 5mm; }
           .product-title { font-size: 20px; color: #1a1a2e; border-bottom: 2px solid #d4a843; padding-bottom: 8px; margin-bottom: 12px; }
           .product-content { display: flex; gap: 20px; margin-bottom: 15px; }
           .product-specs { flex: 1; }
@@ -455,84 +434,104 @@ export default function QuotesPage() {
           .totals-row.total { border-top: 2px solid #d4a843; font-weight: bold; font-size: 15px; color: #d4a843; padding-top: 8px; margin-top: 4px; }
 
           @media print {
-            .page { margin: 0; }
-            .page-body { padding: 3mm 18mm 32mm 18mm; }
-            .header-bar { padding: 6mm 18mm 3mm 18mm; }
-            .header-gradient { margin: 0 18mm; }
+            .header-fixed, .footer-fixed { position: fixed !important; }
           }
         </style>
       </head>
       <body>
 
-        <!-- PAGINA 1: PROPUESTA COMERCIAL -->
-        <div class="page">
-          ${headerHTML('PROPUESTA COMERCIAL')}
-
-          <div class="date-line">Bogotá D.C., ${today}</div>
-
-          <div class="customer-block">
-            <p><strong>Señor(a):</strong></p>
-            <p><strong>${quote.customer?.company || customerName}</strong></p>
-            ${quote.customer?.company ? `<p>Aten. Sr(a). ${customerName}</p>` : ''}
-            ${quote.customer?.phone ? `<p>${quote.customer.phone}</p>` : ''}
-          </div>
-
-          <div class="ref-line">Ref. ROYAL GAMING ROULETTES – PROPUESTA COMERCIAL</div>
-
-          <div class="greeting">Estimado(a) ${firstName || 'Cliente'},</div>
-
-          <div class="intro-text">
-            Royal Gaming Roulettes llega al mercado colombiano con una propuesta innovadora: una ruleta
-            con cilindro europeo patentado que aumenta la rentabilidad en un 38% o más, todo en una
-            combinación de diseño, acústica y tecnología de las ruletas más avanzadas del mercado.
-          </div>
-
-          <div class="features-section">
-            <h3>Principales Características</h3>
-            <h4>Tecnología</h4>
-            <ul>
-              <li>Jackpot Novedoso de 4 Niveles.</li>
-              <li>Bono Replique: (Desarrollo ÚNICO y EXCLUSIVO/I+D).</li>
-              <li>Mecánica de Bonoscope: Ofrecer múltiples opciones de premio adicional a los jugadores que no han tenido una buena racha o cuyo saldo ha llegado a cero.</li>
-              <li>Múltiples de apuesta, PREMIUM hasta 30dpi.</li>
-              <li>Máxima seguridad en juego, incluye Luces led de colores en todo el contorno para una experiencia visual moderna.</li>
-            </ul>
-            <h4>Diseño de Vanguardia</h4>
-            <ul>
-              <li>Acabados de lujo, que combinan de gran manera la electrónica, video, metal y madera con el fin de crear una experiencia única.</li>
-              <li>Imagen moderna, atractiva y amigable para los clientes.</li>
-              <li>Iluminación externa configurable, que se puede guardar por casino a su gusto.</li>
-              <li>Componentes internos de alta calidad tales como fuentes premium del mercado.</li>
-            </ul>
-          </div>
-
-          ${quote.items && quote.items.length > 0 ? `
-          <div class="featured-product">
-            <div style="display:flex;gap:20px;align-items:flex-start;background:#f8f9fa;padding:15px;border-radius:8px;border-left:4px solid #d4a843;">
-              <div style="flex:1;">
-                <h3 style="margin:0 0 8px 0;color:#1a1a2e;">ROYAL ${quote.items[0].product?.model || ''}</h3>
-                <p style="margin:3px 0;font-size:11px;">Superficie: ${quote.items[0].product?.diameterCm || '2150'}mm</p>
-                <p style="margin:3px 0;font-size:11px;">${quote.items[0].product?.positions || 6} estaciones de Juego</p>
-                <p style="margin:3px 0;font-size:11px;">8 computadores independientes.</p>
-                <p style="margin:3px 0;font-size:11px;">8 Billeteros de última generación.</p>
-                <p style="margin:3px 0;font-size:11px;">Monitores LCD de 24"</p>
-                <p style="margin:3px 0;font-size:11px;">Interfaz HD táctil de respuesta inmediata.</p>
-                <p style="margin:3px 0;font-size:11px;">2 cargadores para colgar, para una mejor experiencia y estabilidad de los clientes.</p>
-                <p style="margin:3px 0;font-size:11px;">Protocolo SAS de comunicaciones conforme a los nuevos requerimientos de Coljuegos.</p>
-                <p style="margin:3px 0;font-size:11px;">JACKPOT DE 4 NIVELES y MULTIPLICADORES DE APUESTA</p>
-              </div>
-              <div style="flex:0 0 220px;text-align:center;">
-                ${(() => {
-                  const model = quote.items[0].product?.model || '';
-                  const src = productImages[model] || quote.items[0].product?.imageUrl || '';
-                  return src ? `<img src="${src}" style="max-width:100%;max-height:200px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">` : '';
-                })()}
-              </div>
+        <!-- HEADER FIJO GLOBAL -->
+        <div class="header-fixed">
+          <div class="header-bar">
+            <div class="header-title" id="headerTitle">PROPUESTA COMERCIAL</div>
+            <div class="header-logo">
+              <img src="${logoUrl}" style="height:80px;" onerror="this.style.display='none'">
             </div>
           </div>
-          ` : ''}
+          <div class="header-gradient"></div>
+        </div>
 
-          ${footerHTML}
+        <!-- FOOTER FIJO GLOBAL -->
+        <div class="footer-fixed">
+          <div class="footer-gradient"></div>
+          <div class="footer-content">
+            <span>${companyName} SAS</span>
+            <span class="footer-sep">●</span>
+            <span>🌐 ${website}</span>
+            <span class="footer-sep">●</span>
+            <span>${companyAddress}</span>
+            <span class="footer-sep">●</span>
+            <span>${companyEmail}</span>
+          </div>
+        </div>
+
+        <!-- PAGINA 1: PROPUESTA COMERCIAL -->
+        <div class="page">
+          <div class="page-body">
+            <div class="date-line">Bogotá D.C., ${today}</div>
+
+            <div class="customer-block">
+              <p><strong>Señor(a):</strong></p>
+              <p><strong>${quote.customer?.company || customerName}</strong></p>
+              ${quote.customer?.company ? `<p>Aten. Sr(a). ${customerName}</p>` : ''}
+              ${quote.customer?.phone ? `<p>${quote.customer.phone}</p>` : ''}
+            </div>
+
+            <div class="ref-line">Ref. ROYAL GAMING ROULETTES – PROPUESTA COMERCIAL</div>
+
+            <div class="greeting">Estimado(a) ${firstName || 'Cliente'},</div>
+
+            <div class="intro-text">
+              Royal Gaming Roulettes llega al mercado colombiano con una propuesta innovadora: una ruleta
+              con cilindro europeo patentado que aumenta la rentabilidad en un 38% o más, todo en una
+              combinación de diseño, acústica y tecnología de las ruletas más avanzadas del mercado.
+            </div>
+
+            <div class="features-section">
+              <h3>Principales Características</h3>
+              <h4>Tecnología</h4>
+              <ul>
+                <li>Jackpot Novedoso de 4 Niveles.</li>
+                <li>Bono Replique: (Desarrollo ÚNICO y EXCLUSIVO/I+D).</li>
+                <li>Mecánica de Bonoscope: Ofrecer múltiples opciones de premio adicional a los jugadores que no han tenido una buena racha o cuyo saldo ha llegado a cero.</li>
+                <li>Múltiples de apuesta, PREMIUM hasta 30dpi.</li>
+                <li>Máxima seguridad en juego, incluye Luces led de colores en todo el contorno para una experiencia visual moderna.</li>
+              </ul>
+              <h4>Diseño de Vanguardia</h4>
+              <ul>
+                <li>Acabados de lujo, que combinan de gran manera la electrónica, video, metal y madera con el fin de crear una experiencia única.</li>
+                <li>Imagen moderna, atractiva y amigable para los clientes.</li>
+                <li>Iluminación externa configurable, que se puede guardar por casino a su gusto.</li>
+                <li>Componentes internos de alta calidad tales como fuentes premium del mercado.</li>
+              </ul>
+            </div>
+
+            ${quote.items && quote.items.length > 0 ? `
+            <div class="featured-product">
+              <div style="display:flex;gap:20px;align-items:flex-start;background:#f8f9fa;padding:15px;border-radius:8px;border-left:4px solid #d4a843;">
+                <div style="flex:1;">
+                  <h3 style="margin:0 0 8px 0;color:#1a1a2e;">ROYAL ${quote.items[0].product?.model || ''}</h3>
+                  <p style="margin:3px 0;font-size:11px;">Superficie: ${quote.items[0].product?.diameterCm || '2150'}mm</p>
+                  <p style="margin:3px 0;font-size:11px;">${quote.items[0].product?.positions || 6} estaciones de Juego</p>
+                  <p style="margin:3px 0;font-size:11px;">8 computadores independientes.</p>
+                  <p style="margin:3px 0;font-size:11px;">8 Billeteros de última generación.</p>
+                  <p style="margin:3px 0;font-size:11px;">Monitores LCD de 24"</p>
+                  <p style="margin:3px 0;font-size:11px;">Interfaz HD táctil de respuesta inmediata.</p>
+                  <p style="margin:3px 0;font-size:11px;">2 cargadores para colgar, para una mejor experiencia y estabilidad de los clientes.</p>
+                  <p style="margin:3px 0;font-size:11px;">Protocolo SAS de comunicaciones conforme a los nuevos requerimientos de Coljuegos.</p>
+                  <p style="margin:3px 0;font-size:11px;">JACKPOT DE 4 NIVELES y MULTIPLICADORES DE APUESTA</p>
+                </div>
+                <div style="flex:0 0 220px;text-align:center;">
+                  ${(() => {
+                    const model = quote.items[0].product?.model || '';
+                    const src = productImages[model] || quote.items[0].product?.imageUrl || '';
+                    return src ? `<img src="${src}" style="max-width:100%;max-height:200px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">` : '';
+                  })()}
+                </div>
+              </div>
+            </div>
+            ` : ''}
+          </div>
         </div>
 
         <!-- PAGINAS 2+: FICHAS POR PRODUCTO -->
@@ -540,7 +539,6 @@ export default function QuotesPage() {
 
         <!-- PAGINA FINAL: RESUMEN DE TOTALES -->
         <div class="page">
-          ${headerHTML('RESUMEN DE LA PROPUESTA')}
           <div class="page-body">
             <div style="margin-bottom:15px;">
               <p><strong>Cliente:</strong> ${quote.customer?.fullName || 'N/A'}</p>
@@ -604,7 +602,6 @@ export default function QuotesPage() {
               <p style="margin-top:15px;"><strong>${companyName} SAS</strong></p>
             </div>
           </div>
-          ${footerHTML}
         </div>
 
       </body>
