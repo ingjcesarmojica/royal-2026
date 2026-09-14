@@ -35,13 +35,13 @@ const categoryColors: Record<string, string> = {
 };
 
 const productImages: Record<string, string> = {
-  'XR-8': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-2.webp',
-  'XR-6': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-3.webp',
-  'XS-6': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-4.webp',
-  'XP-5': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-5.webp',
-  'XP-4': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-6.webp',
-  'XT': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-7.webp',
-  'XG': 'https://www.royalxr.com/nuevas_imagenes/PNG/Catalogo_Royal_01-p%C3%A1ginas-8.webp',
+  'XR-8': '/images/products/xr8.webp',
+  'XR-6': '/images/products/xr6.webp',
+  'XS-6': '/images/products/xs6.webp',
+  'XP-5': '/images/products/xp5.webp',
+  'XP-4': '/images/products/xp4.webp',
+  'XT': '/images/products/xt.webp',
+  'XG': '/images/products/xg.webp',
 };
 
 export default function ProductsPage() {
