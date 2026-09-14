@@ -86,7 +86,7 @@ export default function CustomersPage() {
 
   const loadUsers = async () => {
     try {
-      const response = await api.get('/users/list');
+      const response = await api.get('/users');
       setUsers(response.data);
     } catch (error) {
       console.error('Error loading users:', error);

@@ -27,12 +27,6 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get('list')
-  @ApiOperation({ summary: 'Get users list (for assignation)' })
-  async getList() {
-    return this.usersService.findAll();
-  }
-
   @Get(':id')
   @Roles('admin')
   @ApiOperation({ summary: 'Get user by ID (admin only)' })
