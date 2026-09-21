@@ -17,6 +17,9 @@ export enum InteractionType {
   LLAMADA = 'llamada',
   WHATSAPP = 'whatsapp',
   EMAIL = 'email',
+  VISITA = 'visita',
+  ALARMA = 'alarma',
+  RECORDATORIO = 'recordatorio',
   CAMBIO_ESTADO = 'cambio_estado',
 }
 
@@ -76,6 +79,9 @@ export interface Interaction {
   userId: string;
   type: InteractionType;
   content?: string;
+  scheduledAt?: Date;
+  reminderAt?: Date;
+  completed: boolean;
   createdAt: Date;
 }
 

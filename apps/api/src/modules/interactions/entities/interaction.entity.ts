@@ -14,6 +14,9 @@ export enum InteractionType {
   LLAMADA = 'llamada',
   WHATSAPP = 'whatsapp',
   EMAIL = 'email',
+  VISITA = 'visita',
+  ALARMA = 'alarma',
+  RECORDATORIO = 'recordatorio',
   CAMBIO_ESTADO = 'cambio_estado',
 }
 
@@ -33,6 +36,15 @@ export class Interaction {
 
   @Column({ type: 'text', nullable: true })
   content: string;
+
+  @Column({ name: 'scheduled_at', type: 'timestamp', nullable: true })
+  scheduledAt: Date;
+
+  @Column({ name: 'reminder_at', type: 'timestamp', nullable: true })
+  reminderAt: Date;
+
+  @Column({ name: 'completed', default: false })
+  completed: boolean;
 
   @ManyToOne(() => Customer, (customer) => customer.interactions)
   @JoinColumn({ name: 'customer_id' })

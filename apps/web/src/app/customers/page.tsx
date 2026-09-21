@@ -206,7 +206,7 @@ export default function CustomersPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-muted/50 transition-colors">
+                  <tr key={customer.id} onClick={() => router.push(`/customers/${customer.id}`)} className="hover:bg-muted/50 transition-colors cursor-pointer">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
