@@ -47,6 +47,18 @@ export default function PipelinePage() {
       return;
     }
     loadData();
+
+    const interval = setInterval(loadData, 2 * 60 * 1000);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') loadData();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const loadData = async () => {

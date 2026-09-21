@@ -55,6 +55,17 @@ export default function DashboardPage() {
       return;
     }
     loadStats(range);
+
+    const interval = setInterval(() => loadStats(range), 3 * 60 * 1000);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') loadStats(range);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [range]);
 
   const loadStats = async (currentRange: DateRange) => {

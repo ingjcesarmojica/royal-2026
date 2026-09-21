@@ -71,6 +71,17 @@ export default function CustomersPage() {
       }
     }
     loadCustomers();
+
+    const interval = setInterval(loadCustomers, 2 * 60 * 1000);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') loadCustomers();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const loadCustomers = async () => {
