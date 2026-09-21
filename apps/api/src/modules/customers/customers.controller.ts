@@ -94,6 +94,12 @@ export class CustomersController {
     return this.customersService.assignOwner(id, ownerId);
   }
 
+  @Put('bulk-assign')
+  @ApiOperation({ summary: 'Bulk reassign customers from one owner to another' })
+  async bulkAssign(@Body() body: { fromOwnerId: string; toOwnerId: string }) {
+    return this.customersService.bulkReassign(body.fromOwnerId, body.toOwnerId);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Delete customer' })
   async remove(@Param('id') id: string, @Req() req: any) {

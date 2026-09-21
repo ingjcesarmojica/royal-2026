@@ -27,6 +27,12 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('active')
+  @ApiOperation({ summary: 'Get active users (for dropdowns)' })
+  async findActive() {
+    return this.usersService.findActive();
+  }
+
   @Get(':id')
   @Roles('admin')
   @ApiOperation({ summary: 'Get user by ID (admin only)' })

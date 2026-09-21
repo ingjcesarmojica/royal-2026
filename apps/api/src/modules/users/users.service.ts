@@ -28,6 +28,13 @@ export class UsersService {
     return this.usersRepository.find({ order: { createdAt: 'DESC' } });
   }
 
+  async findActive(): Promise<User[]> {
+    return this.usersRepository.find({
+      where: { active: true },
+      order: { fullName: 'ASC' },
+    });
+  }
+
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);

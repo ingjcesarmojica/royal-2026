@@ -1,6 +1,6 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { DashboardService } from './dashboard.service';
+import { Controller, Get, Query, UseGuards, Req } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { DashboardService, DashboardRange } from './dashboard.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Dashboard')
@@ -12,7 +12,11 @@ export class DashboardController {
 
   @Get('stats')
   @ApiOperation({ summary: 'Get dashboard statistics' })
-  async getStats() {
-    return this.dashboardService.getStats();
+  @ApiQuery({ name: 'range', required: false, enum: ['today', '7d', '30d', 'previous_month', 'all'] })
+  async getStats(
+    @Req() req: any,
+    @Query('range') range?: DashboardRange,
+  ) {
+    return this.dashboardService.getStats(req.user.id, req.user.role, range);
   }
 }

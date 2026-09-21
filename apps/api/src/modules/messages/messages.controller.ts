@@ -35,4 +35,10 @@ export class MessagesController {
   async getStats() {
     return this.messagesService.getStats();
   }
+
+  @Get('unread-count')
+  @ApiOperation({ summary: 'Get count of unread incoming messages' })
+  async getUnreadCount() {
+    return this.messagesService.getUnreadCount();
+  }
 }

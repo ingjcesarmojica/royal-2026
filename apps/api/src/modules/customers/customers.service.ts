@@ -66,6 +66,16 @@ export class CustomersService {
     return this.customersRepository.save(customer);
   }
 
+  async bulkReassign(fromOwnerId: string, toOwnerId: string): Promise<{ affected: number }> {
+    const result = await this.customersRepository
+      .createQueryBuilder()
+      .update(Customer)
+      .set({ ownerId: toOwnerId })
+      .where('owner_id = :fromOwnerId', { fromOwnerId })
+      .execute();
+    return { affected: result.affected || 0 };
+  }
+
   async remove(id: string): Promise<void> {
     const customer = await this.findOne(id);
     await this.customersRepository.remove(customer);

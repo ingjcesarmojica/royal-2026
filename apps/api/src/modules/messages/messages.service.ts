@@ -58,4 +58,12 @@ export class MessagesService {
 
     return { byChannel, byStatus };
   }
+
+  async getUnreadCount(): Promise<number> {
+    return this.messagesRepository
+      .createQueryBuilder('message')
+      .where('message.direction = :direction', { direction: 'in' })
+      .andWhere('message.status != :status', { status: 'leido' })
+      .getCount();
+  }
 }

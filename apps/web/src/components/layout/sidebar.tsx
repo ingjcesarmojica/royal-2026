@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTheme } from '@/components/theme-provider';
+import { api } from '@/lib/api';
 import {
   LayoutDashboard,
   Users,
@@ -40,13 +41,26 @@ export default function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
     if (stored) {
       setUser(JSON.parse(stored));
     }
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
   }, []);
+
+  const loadUnreadCount = async () => {
+    try {
+      const res = await api.get('/messages/unread-count');
+      setUnreadCount(res.data);
+    } catch {
+      // Silently fail — not critical
+    }
+  };
 
   const menuItems = allMenuItems.filter(
     (item) => user?.role && item.roles.includes(user.role),
@@ -120,7 +134,14 @@ export default function Sidebar() {
               }`}
               title={collapsed ? item.label : undefined}
             >
-              <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-purple-600' : ''}`} />
+              <div className="relative flex-shrink-0">
+                <Icon className={`w-5 h-5 ${isActive ? 'text-purple-600' : ''}`} />
+                {item.href === '/messages' && unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
               {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
             </Link>
           );
