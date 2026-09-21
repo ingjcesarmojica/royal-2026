@@ -77,7 +77,7 @@ export default function PipelinePage() {
   };
 
   const getCustomersByStatus = (statusId: number) => {
-    return customers.filter((c) => c.statusId === String(statusId));
+    return customers.filter((c) => String(c.statusId) === String(statusId));
   };
 
   const handleDragStart = (e: React.DragEvent, customerId: string) => {
