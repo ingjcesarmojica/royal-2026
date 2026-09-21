@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User, UserRole, AuthProvider } from '../../modules/users/entities/user.entity';
-import { Customer } from '../../modules/customers/entities/customer.entity';
+import { Customer, CustomerSource } from '../../modules/customers/entities/customer.entity';
 import { CustomerStatus } from '../../modules/statuses/entities/customer-status.entity';
 import { Interaction } from '../../modules/interactions/entities/interaction.entity';
 import { Message } from '../../modules/messages/entities/message.entity';
@@ -74,6 +74,57 @@ async function seed() {
       }),
     );
     console.log('✅ Default company settings created');
+  }
+
+  // Seed test customers
+  const customerCount = await dataSource.getRepository(Customer).count();
+  if (customerCount === 0) {
+    const customerRepo = dataSource.getRepository(Customer);
+    const admin = await userRepository.findOne({ where: { email: 'admin@royalcrm.com' } });
+    const statuses = await statusRepository.find({ order: { order: 'ASC' } });
+    const statusMap: Record<string, number> = {};
+    for (const s of statuses) statusMap[s.name] = s.id;
+
+    const testCustomers = [
+      {
+        fullName: 'Carlos Mendoza',
+        company: 'Mendoza Gaming S.A.S',
+        email: 'carlos@mendozagaming.com',
+        phone: '+57 310 234 5678',
+        address: 'Calle 80 #15-30, Bogotá',
+        source: CustomerSource.MANUAL,
+        statusId: String(statusMap['Contactado'] || statuses[1]?.id),
+        ownerId: admin?.id,
+        notes: 'Interesado en 2 ruletas para su sala de billar',
+      },
+      {
+        fullName: 'María Fernanda López',
+        company: 'Royal Slots Colombia',
+        email: 'maria@royalslots.co',
+        phone: '+57 321 876 5432',
+        address: 'Carrera 7 #45-12, Medellín',
+        source: CustomerSource.WEB_FORM,
+        statusId: String(statusMap['En negociación'] || statuses[3]?.id),
+        ownerId: admin?.id,
+        notes: 'Cotización enviada por 3 terminales. Esperando respuesta.',
+      },
+      {
+        fullName: 'Andrés Felipe Restrepo',
+        company: 'Apuestas del Valle',
+        email: 'andres@apuestasvalle.com',
+        phone: '+57 300 555 1234',
+        address: 'Avenida 6N #34-56, Cali',
+        source: CustomerSource.CSV_IMPORT,
+        statusId: String(statusMap['Ganado'] || statuses[4]?.id),
+        ownerId: admin?.id,
+        notes: 'Cliente cerrado. Compra confirmada: 1 gabinete premium.',
+      },
+    ];
+
+    for (const c of testCustomers) {
+      await customerRepo.save(customerRepo.create(c));
+    }
+    console.log('✅ 3 test customers created');
   }
 
   console.log('🎉 Seeding completed!');

@@ -4,7 +4,17 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import Sidebar from '@/components/layout/sidebar';
-import { GripVertical, Phone, Mail, Users, Kanban } from 'lucide-react';
+import {
+  GripVertical,
+  Phone,
+  Mail,
+  Users,
+  Kanban,
+  X,
+  ExternalLink,
+  MessageSquare,
+  Calendar,
+} from 'lucide-react';
 
 interface Status {
   id: number;
@@ -20,6 +30,7 @@ interface Customer {
   phone: string;
   email: string;
   statusId: string;
+  createdAt: string;
 }
 
 export default function PipelinePage() {
@@ -27,6 +38,7 @@ export default function PipelinePage() {
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -73,6 +85,18 @@ export default function PipelinePage() {
     }
   };
 
+  const handleStatusClick = (status: Status) => {
+    setSelectedStatus(status);
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('es-CO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen bg-background">
@@ -83,6 +107,8 @@ export default function PipelinePage() {
       </div>
     );
   }
+
+  const modalCustomers = selectedStatus ? getCustomersByStatus(selectedStatus.id) : [];
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -103,19 +129,30 @@ export default function PipelinePage() {
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, status.id)}
               >
-                {/* Column Header */}
-                <div className="flex items-center justify-between mb-4">
+                {/* Column Header - Clickable */}
+                <button
+                  onClick={() => handleStatusClick(status)}
+                  className="w-full flex items-center justify-between mb-4 p-2 -m-2 rounded-xl hover:bg-background/50 transition-colors cursor-pointer group/header"
+                >
                   <div className="flex items-center gap-2">
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: status.color }}
                     />
-                    <h3 className="font-semibold text-card-foreground">{status.name}</h3>
+                    <h3 className="font-semibold text-card-foreground group-hover/header:text-primary transition-colors">
+                      {status.name}
+                    </h3>
                   </div>
-                  <span className="px-2.5 py-1 text-xs font-bold bg-background rounded-full text-muted-foreground border border-border">
-                    {statusCustomers.length}
-                  </span>
-                </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="px-2.5 py-1 text-xs font-bold rounded-full text-white"
+                      style={{ backgroundColor: status.color }}
+                    >
+                      {statusCustomers.length}
+                    </span>
+                    <Users className="w-4 h-4 text-muted-foreground opacity-0 group-hover/header:opacity-100 transition-opacity" />
+                  </div>
+                </button>
 
                 {/* Cards */}
                 <div className="space-y-3">
@@ -172,6 +209,110 @@ export default function PipelinePage() {
           })}
         </div>
       </main>
+
+      {/* Modal: Lista de clientes por etapa */}
+      {selectedStatus && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedStatus(null)} />
+          <div className="relative bg-card border border-border rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: selectedStatus.color }}
+                />
+                <div>
+                  <h2 className="text-xl font-bold text-card-foreground">{selectedStatus.name}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {modalCustomers.length} {modalCustomers.length === 1 ? 'cliente' : 'clientes'} en esta etapa
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedStatus(null)}
+                className="p-2 hover:bg-muted rounded-xl transition-colors"
+              >
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {modalCustomers.length > 0 ? (
+                <div className="space-y-3">
+                  {modalCustomers.map((customer) => (
+                    <div
+                      key={customer.id}
+                      className="flex items-center justify-between p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                          style={{ backgroundColor: selectedStatus.color }}
+                        >
+                          {customer.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-card-foreground">{customer.fullName}</h4>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            {customer.company && (
+                              <span className="text-xs text-muted-foreground">{customer.company}</span>
+                            )}
+                            {customer.phone && (
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Phone className="w-3 h-3" />
+                                {customer.phone}
+                              </span>
+                            )}
+                            {customer.email && (
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Mail className="w-3 h-3" />
+                                {customer.email}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-xs text-muted-foreground">
+                          <Calendar className="w-3 h-3 inline mr-1" />
+                          {formatDate(customer.createdAt)}
+                        </span>
+                        <button
+                          onClick={() => router.push(`/customers`)}
+                          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                          title="Ver en Clientes"
+                        >
+                          <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
+                  <p className="text-muted-foreground">No hay clientes en esta etapa</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Arrastra tarjetas desde otras columnas para moverlas aquí
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-border">
+              <button
+                onClick={() => setSelectedStatus(null)}
+                className="w-full px-4 py-2 text-sm font-medium rounded-xl border border-border text-card-foreground hover:bg-muted/50 transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
