@@ -41,6 +41,7 @@ export class DashboardService {
       averageTicket,
       averageCloseTimeDays,
       alerts,
+      teamRatings,
     ] = await Promise.all([
       this.countCustomers(ownerId, dateFilter),
       this.getCustomersByStatus(ownerId, dateFilter),
@@ -52,6 +53,7 @@ export class DashboardService {
       this.calculateAverageTicket(ownerId),
       this.calculateAverageCloseTimeDays(ownerId),
       this.getAlerts(ownerId),
+      isVendedor ? Promise.resolve([]) : this.getTeamRatings(),
     ]);
 
     return {
@@ -65,6 +67,7 @@ export class DashboardService {
       averageTicket,
       averageCloseTimeDays,
       alerts,
+      teamRatings,
     };
   }
 
@@ -346,5 +349,83 @@ export class DashboardService {
     }
 
     return qb.getCount();
+  }
+
+  async getTeamRatings() {
+    const owners = await this.customersRepository
+      .createQueryBuilder('customer')
+      .select('user.id', 'userId')
+      .addSelect('user.fullName', 'fullName')
+      .leftJoin('customer.owner', 'user')
+      .where('user.id IS NOT NULL')
+      .groupBy('user.id')
+      .addGroupBy('user.fullName')
+      .getRawMany();
+
+    const ratings = await Promise.all(
+      owners.map(async (owner) => {
+        const totalCustomers = await this.customersRepository
+          .createQueryBuilder('customer')
+          .where('customer.owner_id = :ownerId', { ownerId: owner.userId })
+          .getCount();
+
+        if (totalCustomers === 0) {
+          return { userId: owner.userId, fullName: owner.fullName, stars: 0, metrics: { customers: 0, conversion: 0, activities: 0, pipeline: 0 } };
+        }
+
+        const ganados = await this.customersRepository
+          .createQueryBuilder('customer')
+          .innerJoin('customer.status', 'status')
+          .where('customer.owner_id = :ownerId', { ownerId: owner.userId })
+          .andWhere('status.name = :name', { name: 'Ganado' })
+          .getCount();
+
+        const conversion = Math.round((ganados / totalCustomers) * 100);
+
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const activities = await this.interactionsRepository
+          .createQueryBuilder('interaction')
+          .innerJoin('interaction.customer', 'customer')
+          .where('customer.owner_id = :ownerId', { ownerId: owner.userId })
+          .andWhere('interaction.created_at >= :since', { since: thirtyDaysAgo })
+          .getCount();
+
+        const pipelineResult = await this.quotesRepository
+          .createQueryBuilder('quote')
+          .select('COALESCE(SUM(quote.total), 0)', 'total')
+          .where('quote.user_id = :ownerId', { ownerId: owner.userId })
+          .andWhere('quote.status IN (:...statuses)', {
+            statuses: [QuoteStatus.BORRADOR, QuoteStatus.ENVIADA, QuoteStatus.APROBADA],
+          })
+          .getRawOne();
+
+        const pipelineValue = parseFloat(pipelineResult?.total) || 0;
+
+        const customerScore = Math.min(totalCustomers / 10, 1) * 25;
+        const conversionScore = (conversion / 100) * 30;
+        const activityScore = Math.min(activities / 20, 1) * 25;
+        const maxPipeline = 50000000;
+        const pipelineScore = Math.min(pipelineValue / maxPipeline, 1) * 20;
+
+        const totalScore = customerScore + conversionScore + activityScore + pipelineScore;
+        const stars = totalScore >= 80 ? 5 : totalScore >= 60 ? 4 : totalScore >= 40 ? 3 : totalScore >= 20 ? 2 : totalScore > 0 ? 1 : 0;
+
+        return {
+          userId: owner.userId,
+          fullName: owner.fullName,
+          stars,
+          metrics: {
+            customers: totalCustomers,
+            conversion,
+            activities,
+            pipelineValue,
+          },
+        };
+      }),
+    );
+
+    return ratings.sort((a, b) => b.stars - a.stars);
   }
 }

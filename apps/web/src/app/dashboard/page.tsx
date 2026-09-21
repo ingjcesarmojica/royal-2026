@@ -20,6 +20,7 @@ import {
   Clock,
   AlertTriangle,
   RefreshCw,
+  Star,
 } from 'lucide-react';
 
 type DateRange = 'all' | 'today' | '7d' | '30d' | 'previous_month';
@@ -38,6 +39,12 @@ interface DashboardStats {
     cotizacionesPorVencer: number;
     leadsSinContactar: number;
   };
+  teamRatings: {
+    userId: string;
+    fullName: string;
+    stars: number;
+    metrics: { customers: number; conversion: number; activities: number; pipelineValue: number };
+  }[];
 }
 
 export default function DashboardPage() {
@@ -320,31 +327,83 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold text-card-foreground">Actividad del Equipo</h3>
             </div>
             <div className="space-y-3">
-              {stats?.customersByOwner?.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors group/row"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white text-sm font-bold">
-                      {item.vendedor
-                        ? item.vendedor.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-                        : 'NA'}
-                    </div>
-                    <div>
-                      <p className="font-medium text-card-foreground">{item.vendedor || 'Sin asignar'}</p>
-                      <p className="text-xs text-muted-foreground">{item.count} clientes</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleReassign(item)}
-                    className="opacity-0 group-hover/row:opacity-100 p-2 rounded-lg hover:bg-muted transition-all"
-                    title="Reasignar clientes"
+              {stats?.teamRatings && stats.teamRatings.length > 0 ? (
+                stats.teamRatings.map((rating, index) => (
+                  <div
+                    key={rating.userId}
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors group/row"
                   >
-                    <UserCheck className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                </div>
-              ))}
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white text-sm font-bold">
+                          {rating.fullName
+                            ? rating.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+                            : 'NA'}
+                        </div>
+                        {index === 0 && rating.stars > 0 && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-yellow-900">1</span>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-card-foreground">{rating.fullName || 'Sin asignar'}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-3.5 h-3.5 ${
+                                star <= rating.stars
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'fill-none text-muted-foreground/30'
+                              }`}
+                            />
+                          ))}
+                          <span className="text-xs text-muted-foreground ml-1">
+                            {rating.metrics.customers} clientes · {rating.metrics.conversion}% conv.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const item = stats?.customersByOwner?.find((o) => o.userId === rating.userId);
+                        if (item) handleReassign(item);
+                      }}
+                      className="opacity-0 group-hover/row:opacity-100 p-2 rounded-lg hover:bg-muted transition-all"
+                      title="Reasignar clientes"
+                    >
+                      <UserCheck className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                stats?.customersByOwner?.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors group/row"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white text-sm font-bold">
+                        {item.vendedor
+                          ? item.vendedor.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+                          : 'NA'}
+                      </div>
+                      <div>
+                        <p className="font-medium text-card-foreground">{item.vendedor || 'Sin asignar'}</p>
+                        <p className="text-xs text-muted-foreground">{item.count} clientes</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleReassign(item)}
+                      className="opacity-0 group-hover/row:opacity-100 p-2 rounded-lg hover:bg-muted transition-all"
+                      title="Reasignar clientes"
+                    >
+                      <UserCheck className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                ))
+              )}
               {(!stats?.customersByOwner || stats.customersByOwner.length === 0) && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
