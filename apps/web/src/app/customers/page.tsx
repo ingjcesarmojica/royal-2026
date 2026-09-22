@@ -15,6 +15,7 @@ import {
   Users,
   Filter,
   UserCheck,
+  Check,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -34,6 +35,7 @@ interface UserOption {
   id: string;
   fullName: string;
   email: string;
+  role?: string;
 }
 
 export default function CustomersPage() {
@@ -45,6 +47,7 @@ export default function CustomersPage() {
   const [showModal, setShowModal] = useState(false);
   const [assignModal, setAssignModal] = useState<{ customerId: string; currentOwner: string } | null>(null);
   const [selectedOwner, setSelectedOwner] = useState('');
+  const [assigning, setAssigning] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -118,7 +121,8 @@ export default function CustomersPage() {
   };
 
   const handleAssign = async () => {
-    if (!assignModal || !selectedOwner) return;
+    if (!assignModal || !selectedOwner || assigning) return;
+    setAssigning(true);
     try {
       await api.put(`/customers/${assignModal.customerId}/assign`, { ownerId: selectedOwner });
       toast.success('Cliente asignado exitosamente');
@@ -127,6 +131,8 @@ export default function CustomersPage() {
       loadCustomers();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al asignar cliente');
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -136,6 +142,13 @@ export default function CustomersPage() {
       c.company?.toLowerCase().includes(search.toLowerCase()) ||
       c.email?.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const sellerOptions = users.filter((u) => u.id !== currentUser?.id);
+  const vendedores = sellerOptions.filter((u) => u.role === 'vendedor');
+  const assignOptions = vendedores.length > 0 ? vendedores : sellerOptions;
+  const assignCustomer = assignModal
+    ? customers.find((c) => c.id === assignModal.customerId)
+    : null;
 
   if (loading) {
     return (
@@ -281,9 +294,11 @@ export default function CustomersPage() {
                     {isAdmin && (
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setAssignModal({ customerId: customer.id, currentOwner: customer.ownerId || '' });
                             setSelectedOwner(customer.ownerId || '');
+                            if (users.length === 0) loadUsers();
                           }}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
                         >
@@ -409,10 +424,21 @@ export default function CustomersPage() {
 
         {/* Assign Modal */}
         {assignModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-2xl border border-border w-full max-w-sm shadow-2xl">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setAssignModal(null)}
+          >
+            <div
+              className="bg-card rounded-2xl border border-border w-full max-w-md shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between p-6 border-b border-border">
-                <h2 className="text-xl font-bold text-card-foreground">Asignar Cliente</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-card-foreground">Asignar Cliente</h2>
+                  {assignCustomer && (
+                    <p className="text-sm text-muted-foreground mt-0.5">{assignCustomer.fullName}</p>
+                  )}
+                </div>
                 <button
                   onClick={() => setAssignModal(null)}
                   className="p-2 rounded-lg hover:bg-muted transition-colors"
@@ -422,23 +448,48 @@ export default function CustomersPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-card-foreground mb-1.5">
-                    Asignar a vendedor
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Seleccionar vendedor
                   </label>
-                  <select
-                    value={selectedOwner}
-                    onChange={(e) => setSelectedOwner(e.target.value)}
-                    className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                  >
-                    <option value="">Sin asignar</option>
-                    {users
-                      .filter((u) => u.id !== currentUser?.id)
-                      .map((u) => (
-                        <option key={u.id} value={u.id}>
-                          {u.fullName}
-                        </option>
-                      ))}
-                  </select>
+                  <div className="max-h-72 overflow-y-auto space-y-2">
+                    {assignOptions.map((u) => {
+                      const selected = selectedOwner === u.id;
+                      return (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => setSelectedOwner(u.id)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${
+                            selected
+                              ? 'border-primary bg-primary/5 ring-2 ring-primary/30'
+                              : 'border-border bg-background hover:bg-muted'
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                            {u.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-card-foreground truncate">
+                              {u.fullName}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                          </div>
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                              selected ? 'border-primary bg-primary' : 'border-border'
+                            }`}
+                          >
+                            {selected && <Check className="w-3 h-3 text-white" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                    {assignOptions.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-6">
+                        No hay vendedores disponibles
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex justify-end gap-3 pt-4">
                   <button
@@ -449,8 +500,12 @@ export default function CustomersPage() {
                   </button>
                   <button
                     onClick={handleAssign}
-                    className="px-5 py-2.5 text-sm font-medium gradient-primary text-white rounded-xl hover:shadow-royal transition-all duration-300"
+                    disabled={!selectedOwner || assigning}
+                    className="px-5 py-2.5 text-sm font-medium gradient-primary text-white rounded-xl hover:shadow-royal transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
                   >
+                    {assigning && (
+                      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    )}
                     Asignar
                   </button>
                 </div>
