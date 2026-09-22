@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { BulkAssignDto } from './dto/bulk-assign.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Customers')
@@ -63,6 +64,12 @@ export class CustomersController {
     return customer;
   }
 
+  @Put('bulk-assign')
+  @ApiOperation({ summary: 'Bulk reassign customers from one owner to another' })
+  async bulkAssign(@Body() dto: BulkAssignDto) {
+    return this.customersService.bulkReassign(dto.fromOwnerId ?? null, dto.toOwnerId);
+  }
+
   @Put(':id')
   @ApiOperation({ summary: 'Update customer' })
   async update(@Param('id') id: string, @Body() dto: UpdateCustomerDto, @Req() req: any) {
@@ -92,12 +99,6 @@ export class CustomersController {
   @ApiOperation({ summary: 'Assign customer to owner (admin only)' })
   async assign(@Param('id') id: string, @Body('ownerId') ownerId: string) {
     return this.customersService.assignOwner(id, ownerId);
-  }
-
-  @Put('bulk-assign')
-  @ApiOperation({ summary: 'Bulk reassign customers from one owner to another' })
-  async bulkAssign(@Body() body: { fromOwnerId: string; toOwnerId: string }) {
-    return this.customersService.bulkReassign(body.fromOwnerId, body.toOwnerId);
   }
 
   @Delete(':id')

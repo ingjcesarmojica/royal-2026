@@ -367,8 +367,14 @@ export default function DashboardPage() {
                     </div>
                     <button
                       onClick={() => {
-                        const item = stats?.customersByOwner?.find((o) => o.userId === rating.userId);
-                        if (item) handleReassign(item);
+                        const item = stats?.customersByOwner?.find(
+                          (o: any) => o.userId === rating.userId,
+                        ) || {
+                          userId: rating.userId,
+                          vendedor: rating.fullName,
+                          count: String(rating.metrics?.customers ?? 0),
+                        };
+                        handleReassign(item);
                       }}
                       className="opacity-0 group-hover/row:opacity-100 p-2 rounded-lg hover:bg-muted transition-all"
                       title="Reasignar clientes"

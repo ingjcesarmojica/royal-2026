@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, RefreshCw, ArrowRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { api } from '@/lib/api';
 
 interface Vendor {
@@ -35,7 +36,7 @@ export default function ReassignModal({ isOpen, onClose, fromVendor, onReassigne
       const res = await api.get('/users/active');
       setVendors(res.data.filter((v: Vendor) => v.id !== fromVendor.id));
     } catch (err) {
-      console.error('Error loading vendors:', err);
+      toast.error('Error al cargar vendedores');
     } finally {
       setLoading(false);
     }
@@ -45,15 +46,21 @@ export default function ReassignModal({ isOpen, onClose, fromVendor, onReassigne
     if (!selectedVendorId) return;
     setSubmitting(true);
     try {
-      await api.put('/customers/bulk-assign', {
+      const res = await api.put('/customers/bulk-assign', {
         fromOwnerId: fromVendor.id,
         toOwnerId: selectedVendorId,
       });
+      const affected = res.data?.affected ?? 0;
+      if (affected > 0) {
+        toast.success(`${affected} cliente(s) reasignado(s)`);
+      } else {
+        toast('No había clientes para reasignar', { icon: 'ℹ️' });
+      }
       onReassigned();
       onClose();
       setSelectedVendorId('');
-    } catch (err) {
-      console.error('Error reassigning:', err);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Error al reasignar clientes');
     } finally {
       setSubmitting(false);
     }

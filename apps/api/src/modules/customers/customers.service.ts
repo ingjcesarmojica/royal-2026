@@ -66,13 +66,19 @@ export class CustomersService {
     return this.customersRepository.save(customer);
   }
 
-  async bulkReassign(fromOwnerId: string, toOwnerId: string): Promise<{ affected: number }> {
-    const result = await this.customersRepository
+  async bulkReassign(fromOwnerId: string | null, toOwnerId: string): Promise<{ affected: number }> {
+    const qb = this.customersRepository
       .createQueryBuilder()
       .update(Customer)
-      .set({ ownerId: toOwnerId })
-      .where('owner_id = :fromOwnerId', { fromOwnerId })
-      .execute();
+      .set({ ownerId: toOwnerId });
+
+    if (fromOwnerId) {
+      qb.where('owner_id = :fromOwnerId', { fromOwnerId });
+    } else {
+      qb.where('owner_id IS NULL');
+    }
+
+    const result = await qb.execute();
     return { affected: result.affected || 0 };
   }
 
