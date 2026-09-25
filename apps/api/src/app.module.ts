@@ -23,17 +23,31 @@ import { RolesGuard } from './common/roles.guard';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 5432),
-        username: config.get('DB_USERNAME', 'royal_crm_user'),
-        password: config.get('DB_PASSWORD', 'royal_crm_dev_password'),
-        database: config.get('DB_DATABASE', 'royal_crm'),
-        autoLoadEntities: true,
-        synchronize: true,
-        logging: false,
-      }),
+      useFactory: (config: ConfigService) => {
+        const url = config.get<string>('DATABASE_URL');
+        const useSsl =
+          config.get<string>(
+            'DB_SSL',
+            process.env.NODE_ENV === 'production' ? 'true' : 'false',
+          ) === 'true';
+
+        return {
+          type: 'postgres' as const,
+          ...(url
+            ? { url }
+            : {
+                host: config.get<string>('DB_HOST', 'localhost'),
+                port: config.get<number>('DB_PORT', 5432),
+                username: config.get<string>('DB_USERNAME', 'royal_crm_user'),
+                password: config.get<string>('DB_PASSWORD', 'royal_crm_dev_password'),
+                database: config.get<string>('DB_DATABASE', 'royal_crm'),
+              }),
+          ...(useSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+          autoLoadEntities: true,
+          synchronize: true,
+          logging: false,
+        };
+      },
     }),
     DatabaseModule,
     AuthModule,

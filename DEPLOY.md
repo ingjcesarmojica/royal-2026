@@ -18,14 +18,7 @@ git push -u origin main
 ## Paso 2: Desplegar en Render
 
 ### Opción A: Blueprints (Recomendado)
-1. Ve a [Render Dashboard](https://dashboard.render.com)
-2. Haz clic en **New Blueprint**
-3. Conecta tu repositorio de GitHub
-4. Selecciona el archivo `render.yaml`
-5. Render creará automáticamente:
-   - Base de datos PostgreSQL
-   - Backend API
-   - Frontend Web
+> Nota: el repo no incluye `render.yaml`. Si quieres usar Blueprints, primero créalo o usa la Opción B.
 
 ### Opción B: Manual
 1. **Base de datos PostgreSQL:**
@@ -33,30 +26,36 @@ git push -u origin main
    - Plan: Free
    - Database Name: royal_crm
    - User: royal_crm_user
+   - Region: misma región que los servicios web (por defecto Oregon)
 
-2. **Backend API:**
+2. **Backend API (NestJS):**
    - New → Web Service
+   - Conecta el repositorio `ingjcesarmojica/royal-2026`
    - Runtime: Node
-   - Build Command: `cd apps/api && npm install && npm run build`
+   - Build Command: `npm install && npm run build --workspace=apps/api`
    - Start Command: `cd apps/api && node dist/main`
    - Variables de entorno:
-     - `DB_HOST` → (del PostgreSQL)
-     - `DB_PORT` → (del PostgreSQL)
-     - `DB_USERNAME` → (del PostgreSQL)
-     - `DB_PASSWORD` → (del PostgreSQL)
-     - `DB_DATABASE` → royal_crm
-     - `JWT_SECRET` → (generar uno aleatorio)
-     - `FRONTEND_URL` → URL del frontend
      - `NODE_ENV` → production
+     - `DATABASE_URL` → (Internal Database URL del PostgreSQL de Render; SSL se activa solo en producción)
+     - `JWT_SECRET` → (generar uno aleatorio de 32+ caracteres)
+     - `JWT_EXPIRATION` → 15m
+     - `JWT_REFRESH_EXPIRATION` → 7d
+     - `FRONTEND_URL` → `https://royal-crm-2026.onrender.com`
+     - `DB_SSL` → true (opcional; en producción ya se activa solo)
+   - Nota: `PORT` lo inyecta Render automáticamente (el código lo usa con `process.env.PORT`)
+   - Al arrancar, TypeORM sincroniza el esquema (`synchronize: true`) y ejecuta el seed
+     (usuario admin, estados y clientes de prueba) automáticamente.
 
 3. **Frontend Web:**
    - New → Web Service
    - Runtime: Node
-   - Build Command: `cd apps/web && npm install && npm run build`
+   - Build Command: `npm install && npm run build --workspace=apps/web`
    - Start Command: `cd apps/web && npm start`
    - Variables de entorno:
-     - `NEXT_PUBLIC_API_URL` → URL del backend + `/api`
+     - `NEXT_PUBLIC_API_URL` → URL del backend + `/api` (ej: `https://royal-crm-2026-api.onrender.com/api`)
      - `NODE_ENV` → production
+   - Importante: después de cambiar variables `NEXT_PUBLIC_*`, haz
+     **Trigger Deploy → Clear build cache & deploy** (se inyectan en tiempo de build).
 
 ## Paso 3: Ejecutar Seed
 
@@ -84,9 +83,11 @@ O crea el usuario admin manualmente desde la API.
 
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
-| `NEXT_PUBLIC_API_URL` | URL pública del backend | `https://royal-crm-api.onrender.com/api` |
+| `NEXT_PUBLIC_API_URL` | URL pública del backend (+ `/api`) | `https://royal-crm-2026-api.onrender.com/api` |
+| `DATABASE_URL` | URL de conexión a PostgreSQL (Render) | `postgresql://user:pass@host:5432/db` |
+| `FRONTEND_URL` | Origen permitido en CORS | `https://royal-crm-2026.onrender.com` |
 | `JWT_SECRET` | Secreto para tokens JWT | `tu-secreto-super-seguro` |
-| `DB_HOST` | Host de PostgreSQL | `dpg-xxx.oregon-postgres.render.com` |
+| `DB_HOST` | Host de PostgreSQL (solo si no usas `DATABASE_URL`) | `dpg-xxx.oregon-postgres.render.com` |
 
 ## Notas Importantes
 
@@ -97,6 +98,6 @@ O crea el usuario admin manualmente desde la API.
 
 ## URLs de Producción
 
-- Frontend: `https://royal-crm-web.onrender.com`
-- Backend API: `https://royal-crm-api.onrender.com/api`
-- Swagger Docs: `https://royal-crm-api.onrender.com/api/docs`
+- Frontend: `https://royal-crm-2026.onrender.com`
+- Backend API: `https://royal-crm-2026-api.onrender.com/api`
+- Swagger Docs: `https://royal-crm-2026-api.onrender.com/api/docs`
