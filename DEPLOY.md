@@ -32,7 +32,7 @@ git push -u origin main
    - New → Web Service
    - Conecta el repositorio `ingjcesarmojica/royal-2026`
    - Runtime: Node
-   - Build Command: `npm install && npm run build --workspace=apps/api`
+   - Build Command: `npm install --include=dev --no-audit --no-fund && npm run build --workspace=apps/api`
    - Start Command: `cd apps/api && node dist/main`
    - Variables de entorno:
      - `NODE_ENV` → production
@@ -49,7 +49,7 @@ git push -u origin main
 3. **Frontend Web:**
    - New → Web Service
    - Runtime: Node
-   - Build Command: `npm install && npm run build --workspace=apps/web`
+   - Build Command: `npm install --include=dev --no-audit --no-fund && npm run build --workspace=apps/web`
    - Start Command: `cd apps/web && npm start`
    - Variables de entorno:
      - `NEXT_PUBLIC_API_URL` → URL del backend + `/api` (ej: `https://royal-crm-2026-api.onrender.com/api`)
